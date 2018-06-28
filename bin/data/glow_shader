@@ -1,0 +1,38 @@
+uniform vec4 u_minColor;
+uniform vec4 u_maxColor;
+uniform vec2 u_resolution;
+uniform float u_time;
+
+void main() {
+    vec3 color = vec3(0.);
+    
+    if(u_maxColor.r > 0.0){
+        color.r = abs(sin(u_time));
+
+	if(color.r > u_maxColor.r){
+	   color.r = u_maxColor.r;
+	}else if(color.r < u_minColor.r){
+	   color.r = u_minColor.r;
+	}
+    }
+    if(u_maxColor.g > 0.0){
+        color.g = abs(sin(u_time));
+
+	if(color.g > u_maxColor.g){
+	   color.g = u_maxColor.g;
+	}else if(color.g < u_minColor.g){
+	   color.g = u_minColor.g;
+	}
+    }
+    if(u_maxColor.b > 0.0){
+        color.b = abs(sin(u_time));
+
+	if(color.b > u_maxColor.b){
+	   color.b = u_maxColor.b;
+	}else if(color.b < u_minColor.b){
+	   color.b = u_minColor.b;
+	}
+    }
+    
+    gl_FragColor = vec4(color,1.0);
+}
