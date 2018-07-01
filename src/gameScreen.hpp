@@ -30,6 +30,7 @@
 #include "libado/util/fileLogger.hpp"
 #include "libado/gui/widgetLuaBind.hpp"
 #include "libado/gui/minimap.hpp"
+#include "libado/gui/checkpointWidget.hpp"
 #include "libado/map/tileMap.hpp"
 #include "libado/util/mazeGen.hpp"
 #include "libado/entity/systems/renderSystem.hpp"
@@ -38,6 +39,7 @@
 #include "libado/entity/systems/ninjaRopeSystem.hpp"
 #include "libado/entity/systems/animationSystem.hpp"
 #include "libado/entity/systems/particleSystem.hpp"
+#include "libado/entity/systems/collisionSystem.hpp"
 #include "libado/entity/entityFactory.hpp"
 #include "libado/entity/checkpointUtil.hpp"
 
@@ -76,6 +78,7 @@ protected:
 	std::shared_ptr<RenderingSystem> renderSys;
 	std::shared_ptr<AnimationSystem> animSys;
 	std::shared_ptr<PhysicsSystem> physicsSys;
+	std::shared_ptr<CollisionSystem> collisionSys;
 	std::shared_ptr<ParticleSystem> particleSys;
 
 	std::shared_ptr<TileMap> tileMap;

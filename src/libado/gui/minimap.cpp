@@ -77,6 +77,8 @@ void MiniMap::update(sf::Time elapsedTime){
 	image.setPixel(tileX + 2, tileY + 2, sf::Color::Red);
 
 	for(auto e : checkpoints){
+		if(!e.isValid()) continue;
+
 		PositionComponent& pos = e.getComponent<PositionComponent>();
 
 		tileX = std::floor(pos.screenPosition.x / TILESIZE);

@@ -15,12 +15,11 @@
 #include "../components/componentsCollection.hpp"
 #include "../../util/quadtree.hpp"
 #include "../../util/lineShape.hpp"
+#include "../../entity/systems/particleSystem.hpp"
 #include "../../map/tileMap.hpp"
 
-static float const GRAVITY = 9.00f;
-
 struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComponent>>{
-	CollisionSystem(TileMap* m) : map(m){}
+	CollisionSystem(TileMap* m, ParticleSystem* pSys) : map(m), particleSys(pSys){}
 
     /// Updates the MovementSystem
     /// \param deltaTime The change in time
@@ -37,6 +36,8 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 			int tileY = std::floor((body->getPosition().y +
 					(body->getGlobalBounds().height / 2)) / TILESIZE);
 
+			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
+
 			// check for collisons at new position
 			b.resetGrid();
 			checkCollisions(b, tileX, tileY, [](DirectionEnum::Direction d,
@@ -45,9 +46,6 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 			});
 
 			if(j.inAir){
-				/* 	dont apply collisions during the first 55% of jump
-				 * 	prevents false-positive collisions during start of jump
-				 */
 				if(!(j.jumping)){
 					checkAirCollisions(s, j, p, b, body, tileX, tileY);
 				}
@@ -71,14 +69,65 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 			// if on rope & collision detected, adjust rope length
 			checkRopeLen(hasRopeAnchor, b, entity);
 
+			tileX = std::floor((body->getPosition().x +
+					(body->getGlobalBounds().width / 2)) / TILESIZE);
+			tileY = std::floor((body->getPosition().y +
+					(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+			checkEntityCollisions(tileX, tileY, entity, body);
+
 			//POSITION ENTITY
 			p.screenPosition.x = body->getPosition().x;
 			p.screenPosition.y = body->getPosition().y;
+
+			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
     	}
     }
 
 private:
     TileMap* map;
+    ParticleSystem* particleSys;
+
+    void checkEntityCollisions(int tileX, int tileY, anax::Entity e,  sf::RectangleShape* body){
+    	checkNeighbour(tileX, tileY + 1, e, body);
+    	checkNeighbour(tileX + 1, tileY, e, body);
+    	checkNeighbour(tileX - 1, tileY, e, body);
+    	checkNeighbour(tileX, tileY - 1, e, body);
+    	checkNeighbour(tileX + 1, tileY + 1, e, body);
+    	checkNeighbour(tileX - 1, tileY - 1, e, body);
+    	checkNeighbour(tileX - 1, tileY + 1, e, body);
+    	checkNeighbour(tileX + 1, tileY - 1, e, body);
+    	checkNeighbour(tileX, tileY, e, body);
+    }
+
+    void checkNeighbour(int tileX, int tileY, anax::Entity e, sf::RectangleShape* body){
+		if(map->getEntityLayer().isOccupied(tileX, tileY)){
+			auto& l = map->getEntityLayer().getEntitiesAt(tileX, tileY);
+			for(int i = 0; i < l.size(); ++i){
+				anax::Entity n = getWorld().getEntity(l[i]);
+
+				if(e.getId().index == n.getId().index) continue;
+
+				if(n.hasComponent<CheckpointComponent>()){
+					BodyComponent& nB = n.getComponent<BodyComponent>();
+					sf::Shape* nBody = nB.getShape("main");
+					if(nBody->getGlobalBounds().intersects(body->getGlobalBounds())){
+
+						// trigger entity collision
+						if(n.hasComponent<CheckpointComponent>()){
+							particleSys->createExplosion(16,
+									n.getComponent<PositionComponent>().screenPosition
+							);
+
+							map->getEntityLayer().removeEntity(tileX, tileY, n.getId().index);
+
+							n.kill();
+						}
+					}
+				}
+			}
+		}
+    }
 
     void checkRopeLen(bool hasRopeAnchor, BodyComponent& b, anax::Entity entity){
 		if(hasRopeAnchor){

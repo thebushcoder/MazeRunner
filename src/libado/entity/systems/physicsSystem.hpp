@@ -37,6 +37,13 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 			BodyComponent& b = entity.getComponent<BodyComponent>();
 			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 
+			int tileX = std::floor((p.screenPosition.x +
+					(body->getGlobalBounds().width / 2)) / TILESIZE);
+			int tileY = std::floor((p.screenPosition.y +
+					(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
+
 			// rope swing physics
 			bool hasRopeAnchor = false;
 	    	if(entity.hasComponent<RopeComponent>()){
@@ -66,6 +73,13 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 			// POSITION BODY
 			body->setPosition(p.screenPosition.x, p.screenPosition.y);
 			body->move(s.currentVel.x, s.currentVel.y);
+
+			tileX = std::floor((body->getPosition().x +
+					(body->getGlobalBounds().width / 2)) / TILESIZE);
+			tileY = std::floor((body->getPosition().y +
+					(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
 		}
     }
 

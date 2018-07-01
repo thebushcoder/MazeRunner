@@ -18,7 +18,7 @@ void GameScreen::init(){
 	entityWorld->addSystem(*renderSys);
 	entFactory = std::make_shared<EntityFactory>("bin/data/entityData.json", entityWorld.get());
 
-	tileMap = std::make_shared<TileMap>("bin/data/tileData.json", 162, 72);
+	tileMap = std::make_shared<TileMap>(entFactory.get(), "bin/data/tileData.json", 162, 72);
 
 	physicsSys = std::make_shared<PhysicsSystem>(tileMap.get());
 	entityWorld->addSystem(*physicsSys);
@@ -28,6 +28,8 @@ void GameScreen::init(){
 	entityWorld->addSystem(*animSys);
 	particleSys = std::make_shared<ParticleSystem>(entFactory.get());
 	entityWorld->addSystem(*particleSys);
+	collisionSys = std::make_shared<CollisionSystem>(tileMap.get(), particleSys.get());
+	entityWorld->addSystem(*collisionSys);
 
 //	mapView = std::unique_ptr<WorldView>(new WorldView(manager->getWindow()->getSize().x,
 //			manager->getWindow()->getSize().y, input.get()));
@@ -37,7 +39,12 @@ void GameScreen::init(){
 	MazeGen::getInstance()->generateMaze(tileMap.get());
 
 	anax::Entity e = entFactory->createEntity("player");
-	e.getComponent<PositionComponent>().setPosition(TILESIZE * 1.5, TILESIZE * 2);
+	float pX = TILESIZE * 1.5, pY = TILESIZE * 2;
+	int tileX = std::floor(pX / TILESIZE);
+	int tileY = std::floor(pY / TILESIZE);
+
+	e.getComponent<PositionComponent>().setPosition(pX, pY);
+	tileMap->getEntityLayer().setEntity(tileX, tileY, e.getId().index);
 
 	mapView = std::unique_ptr<WorldView>(new WorldView(manager->getWindow()->getSize().x,
 				manager->getWindow()->getSize().y, entFactory->getPlayer()));
@@ -48,7 +55,8 @@ void GameScreen::init(){
 			manager->getWindow(), mapView->getView());
 	entityWorld->addSystem(*controller);
 
-	checkpoints = CheckpointUtil::createCheckPoints(3, tileMap.get(), entFactory.get());
+	int numCheckpoints = 3;
+	checkpoints = CheckpointUtil::createCheckPoints(numCheckpoints, tileMap.get(), entFactory.get());
 
 	/////////////////////////////////////////////////////////////
 
@@ -59,6 +67,10 @@ void GameScreen::init(){
 	auto minimap = std::make_shared<MiniMap>(manager->getTheme(), this);
 	minimap->init(manager->getWindow());
 	manager->getGui()->add(minimap, "minimap");
+
+	auto cpWidget = std::make_shared<CheckpointWidget>(manager->getTheme(), this,
+			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y, numCheckpoints);
+	manager->getGui()->add(cpWidget, "cpWidget");
 
 	/////////////////////////////////////////////////////////////
 
@@ -122,6 +134,7 @@ void GameScreen::update(sf::Time& delta){
 	controller->update(delta);
 	ropeSys->update(delta);
 	physicsSys->update(delta);
+	collisionSys->update(delta);
 	particleSys->update(delta);
 	animSys->update(delta);
 

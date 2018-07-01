@@ -162,11 +162,13 @@ private:
     void updateRopeSwing(anax::Entity rope, sf::Time& delta){
 		if(rope.isValid()){
 			RopeDetailsComponent& r = rope.getComponent<RopeDetailsComponent>();
+			SpriteComponent& spr = rope.getComponent<SpriteComponent>();
+
 			JumpComponent& j = r.srcEntity.getComponent<JumpComponent>();
 			MovementComponent& s = r.srcEntity.getComponent<MovementComponent>();
 			PositionComponent& p = r.srcEntity.getComponent<PositionComponent>();
-			SpriteComponent& spr = rope.getComponent<SpriteComponent>();
 			BodyComponent& b = r.srcEntity.getComponent<BodyComponent>();
+			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 
 			r.tmpLen = 0;
 			// reel/change rope length
@@ -232,11 +234,24 @@ private:
 					newPos = sf::Vector2f(len * std::sin(angle), len * std::cos(angle));
 
 					newPos += r.anchor;
-
 				}
+
+				int tileX = std::floor((p.screenPosition.x +
+						(body->getGlobalBounds().width / 2)) / TILESIZE);
+				int tileY = std::floor((p.screenPosition.y +
+						(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+				map->getEntityLayer().removeEntity(tileX, tileY, r.srcEntity.getId().index);
 
 				p.screenPosition = newPos;
 				r.src = newPos;
+
+				tileX = std::floor((p.screenPosition.x +
+						(body->getGlobalBounds().width / 2)) / TILESIZE);
+				tileY = std::floor((p.screenPosition.y +
+						(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+				map->getEntityLayer().setEntity(tileX, tileY, r.srcEntity.getId().index);
 
 				((sf::LineShape*)spr.getImgComponents()[0].get())->init(r.src, r.anchor);
 			}

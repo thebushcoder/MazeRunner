@@ -7,18 +7,21 @@
 
 #include "tileMap.hpp"
 
-TileMap::TileMap(std::shared_ptr<TileFactory> tileFactory, int w, int h) :
+TileMap::TileMap(EntityFactory* f, std::shared_ptr<TileFactory> tileFactory, int w, int h) :
 	width(w), height(h){
 	tileLayer = std::unique_ptr<TileLayer>(new TileLayer(width, height));
+	entityLayer = std::unique_ptr<EntityLayer>(new EntityLayer(f, this, width, height));
 	TileMap::factory = tileFactory;
 }
-TileMap::TileMap(std::string jsonPath, int w, int h) : width(w), height(h){
+TileMap::TileMap(EntityFactory* f, std::string jsonPath, int w, int h) : width(w), height(h){
 	TileMap::factory = std::shared_ptr<TileFactory>(new TileFactory(jsonPath));
 
 	tileLayer = std::unique_ptr<TileLayer>(new TileLayer(width, height));
+	entityLayer = std::unique_ptr<EntityLayer>(new EntityLayer(f, this, width, height));
 }
 void TileMap::render(sf::RenderWindow* window){
 	tileLayer->render(window);
+//	entityLayer->render(window);
 }
 void TileMap::resize(int w, int h){
 	width = w;
@@ -108,6 +111,7 @@ TileMap& TileMap::operator = (TileMap& other){
 	TileMap::factory = std::move(other.factory);
 
 	tileLayer = std::move(other.tileLayer);
+	entityLayer = std::move(other.entityLayer);
 
 	return *this;
 }
@@ -140,6 +144,9 @@ TileLayer& TileMap::getTileLayer(){
 }
 std::shared_ptr<TileFactory> TileMap::getFactory(){
 	return factory;
+}
+EntityLayer& TileMap::getEntityLayer(){
+	return *entityLayer;
 }
 int TileMap::getWidth(){
 	return TileMap::width;

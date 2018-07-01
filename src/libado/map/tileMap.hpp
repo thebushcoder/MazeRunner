@@ -27,12 +27,14 @@
 
 #include "tileFactory.hpp"
 #include "tileLayer.hpp"
+#include "entityLayer.hpp"
+#include "../entity/entityFactory.hpp"
 
 class TileMap{
 public:
 	TileMap(){}
-	TileMap(std::shared_ptr<TileFactory> tileFactory, int w, int h);
-	TileMap(std::string jsonPath, int w, int h);
+	TileMap(EntityFactory* factory, std::shared_ptr<TileFactory> tileFactory, int w, int h);
+	TileMap(EntityFactory* factory, std::string jsonPath, int w, int h);
 
 	void load(std::string filePath);
 	void save(std::string filePath);
@@ -44,6 +46,7 @@ public:
 	int getHeight();
 	std::shared_ptr<TileFactory> getFactory();
 	TileLayer& getTileLayer();
+	EntityLayer& getEntityLayer();
 	Tile::Type getCost(int dx, int dy);
 	std::vector<sf::Vector2i> getNeighbours(int x, int y);
 	TileMap& operator = (TileMap& other);
@@ -53,6 +56,7 @@ public:
 protected:
 	std::shared_ptr<TileFactory> factory;
 	std::unique_ptr<TileLayer> tileLayer;
+	std::unique_ptr<EntityLayer> entityLayer;
 	int width, height;
 	std::string mapName;
 };
