@@ -43,7 +43,14 @@ struct BodyComponent : anax::Component{
 	std::map<std::string, std::unique_ptr<sf::Shape> >& getBodyComponents(){
 		return bodyComponents;
 	}
+	const std::string& getCollisionMod() const {
+		return collisionMod;
+	}
+	void setCollisionMod(const std::string& collisionMod) {
+		this->collisionMod = collisionMod;
+	}
 private:
+	std::string collisionMod;
 	std::map<std::string, std::unique_ptr<sf::Shape> > bodyComponents;
 };
 

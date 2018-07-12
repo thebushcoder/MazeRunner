@@ -19,6 +19,7 @@
 #include "ropeDetailsComponent.hpp"
 #include "animationComponent.hpp"
 #include "particleComponent.hpp"
+#include "enemyComponent.hpp"
 
 #endif /* LIBADO_ENTITY_COMPONENTS_COMPONENTSCOLLECTION_HPP_ */
 

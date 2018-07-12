@@ -43,7 +43,8 @@ anax::Entity EntityFactory::createEntity(std::string name){
 			SpriteComponent& s = e.getComponent<SpriteComponent>();
 			for (auto& i : itr->value.GetArray()){
 				if(i.HasMember("rect")){
-					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(new sf::RectangleShape());
+					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(
+							new sf::RectangleShape());
 					((sf::RectangleShape*)r.get())->setSize(sf::Vector2f(
 							i["rect"]["w"].GetFloat(),
 							i["rect"]["h"].GetFloat()
@@ -89,6 +90,29 @@ anax::Entity EntityFactory::createEntity(std::string name){
 							l->getGlobalBounds().height * 1.2);
 
 					s.addImgComponent(l);
+				}else if(i.HasMember("circle")){
+					std::unique_ptr<sf::Shape> c = std::unique_ptr<sf::Shape>(
+							new sf::CircleShape(i["circle"]["w"].GetFloat())
+					);
+
+					c->setFillColor(sf::Color(
+							i["circle"]["c"][0].GetInt(),
+							i["circle"]["c"][1].GetInt(),
+							i["circle"]["c"][2].GetInt()
+							));
+
+					if(i["circle"].HasMember("olt")){
+						c->setOutlineThickness(i["circle"]["olt"].GetFloat());
+					}
+					if(i["circle"].HasMember("olc")){
+						c->setOutlineColor(sf::Color(
+								i["circle"]["olc"][0].GetInt(),
+								i["circle"]["olc"][1].GetInt(),
+								i["circle"]["olc"][2].GetInt()
+								));
+					}
+
+					s.addImgComponent(c);
 				}
 			}
 		}
@@ -96,8 +120,11 @@ anax::Entity EntityFactory::createEntity(std::string name){
 			e.addComponent<BodyComponent>();
 			BodyComponent& b = e.getComponent<BodyComponent>();
 			for (auto& i : itr->value.GetArray()){
-				if(i.HasMember("rect")){
-					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(new sf::RectangleShape());
+				if(i.HasMember("collisionMod")){
+					b.setCollisionMod(i["collisionMod"].GetString());
+				}else if(i.HasMember("rect")){
+					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(
+							new sf::RectangleShape());
 					((sf::RectangleShape*)r.get())->setSize(sf::Vector2f(
 							i["rect"]["w"].GetFloat(),
 							i["rect"]["h"].GetFloat()
@@ -116,7 +143,7 @@ anax::Entity EntityFactory::createEntity(std::string name){
 					b.addBodyComponent(i["rect"]["k"].GetString(), r);
 				}else if(i.HasMember("circle")){
 					std::unique_ptr<sf::Shape> c = std::unique_ptr<sf::Shape>(
-							new sf::CircleShape(i["circle"]["w"].GetFloat(), 6)
+							new sf::CircleShape(i["circle"]["w"].GetFloat())
 					);
 
 					b.addBodyComponent(i["circle"]["k"].GetString(), c);
@@ -138,6 +165,9 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		}
 		if(strcmp(itr->name.GetString(), "particle") == 0){
 			e.addComponent<ParticleComponent>(itr->value);
+		}
+		if(strcmp(itr->name.GetString(), "enemy") == 0){
+			e.addComponent<EnemyComponent>();
 		}
 		if(strcmp(itr->name.GetString(), "move") == 0){
 			e.addComponent<MovementComponent>(itr->value.GetFloat());

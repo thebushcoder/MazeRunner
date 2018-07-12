@@ -12,6 +12,7 @@
 #include "../map/tileMap.hpp"
 
 namespace CheckpointUtil{
+	void placeCheckpoint(TileMap* map, anax::Entity cp, std::vector<anax::Entity>& list, float scrX, float scrY);
 	std::vector<anax::Entity> createCheckPoints(int num, TileMap* map, EntityFactory* factory);
 };
 

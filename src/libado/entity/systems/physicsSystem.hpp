@@ -32,10 +32,8 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
     	for (auto entity : getEntities()){
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 			MovementComponent& s = entity.getComponent<MovementComponent>();
-			JumpComponent& j = entity.getComponent<JumpComponent>();
-
 			BodyComponent& b = entity.getComponent<BodyComponent>();
-			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
+			sf::Shape* body = b.getShape("main");
 
 			int tileX = std::floor((p.screenPosition.x +
 					(body->getGlobalBounds().width / 2)) / TILESIZE);
@@ -44,40 +42,28 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 
 			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
 
-			// rope swing physics
-			bool hasRopeAnchor = false;
-	    	if(entity.hasComponent<RopeComponent>()){
-	    		anax::Entity rope = entity.getComponent<RopeComponent>().rope;
-	    		if(rope.isValid()){
-	    			hasRopeAnchor = rope.getComponent<RopeDetailsComponent>().isAnchored;
-	    		}
-	    	}
+			if(entity.hasComponent<PlayerComponent>()){
+				updatePlayer(entity, delta);
 
-	    	// horizontal movement, jump, gravity - if not rope swinging
-			if(!hasRopeAnchor){
-				// jump and gravity
-				updateY(s, j, delta);
+				body->setPosition(p.screenPosition.x, p.screenPosition.y);
+				body->move(s.currentVel.x, s.currentVel.y);
+			}else{
+				s.setXVec(s.getMaxAcc() * delta.asSeconds());
+				s.setYVec(s.getMaxAcc() * delta.asSeconds());
 
-				s.setXVec(s.currentAcc.x * delta.asSeconds());
-				s.currentVel.x *= 0.962f;	// friction
-				if(j.inAir){
-					s.currentVel.x *= 0.982f;	// additional air friction - more natural arc
-				}
+				body->setPosition(p.screenPosition.x, p.screenPosition.y);
+				body->move(s.currentAcc.x * s.currentVel.x, s.currentAcc.y * s.currentVel.y);
 			}
-
-			//	stop player moving if speed below min threshold(prevents infinite sliding)
-			if(s.currentVel.x != 0 && std::abs(s.currentVel.x) < s.getMinAcc()){
-				s.currentVel.x = 0;
-			}
-
-			// POSITION BODY
-			body->setPosition(p.screenPosition.x, p.screenPosition.y);
-			body->move(s.currentVel.x, s.currentVel.y);
 
 			tileX = std::floor((body->getPosition().x +
 					(body->getGlobalBounds().width / 2)) / TILESIZE);
 			tileY = std::floor((body->getPosition().y +
 					(body->getGlobalBounds().height / 2)) / TILESIZE);
+
+//			if(!entity.hasComponent<PlayerComponent>()){
+//				p.screenPosition.x = body->getPosition().x;
+//				p.screenPosition.y = body->getPosition().y;
+//			}
 
 			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
 		}
@@ -85,6 +71,37 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 
 private:
     TileMap* map;
+
+    void updatePlayer(anax::Entity entity, sf::Time& delta){
+		MovementComponent& s = entity.getComponent<MovementComponent>();
+		JumpComponent& j = entity.getComponent<JumpComponent>();
+
+		// rope swing physics
+		bool hasRopeAnchor = false;
+    	if(entity.hasComponent<RopeComponent>()){
+    		anax::Entity rope = entity.getComponent<RopeComponent>().rope;
+    		if(rope.isValid()){
+    			hasRopeAnchor = rope.getComponent<RopeDetailsComponent>().isAnchored;
+    		}
+    	}
+
+    	// horizontal movement, jump, gravity - if not rope swinging
+		if(!hasRopeAnchor){
+			// jump and gravity
+			updateY(s, j, delta);
+
+			s.setXVec(s.currentAcc.x * delta.asSeconds());
+			s.currentVel.x *= 0.962f;	// friction
+			if(j.inAir){
+				s.currentVel.x *= 0.982f;	// additional air friction - more natural arc
+			}
+		}
+
+		//	stop player moving if speed below min threshold(prevents infinite sliding)
+		if(s.currentVel.x != 0 && std::abs(s.currentVel.x) < s.getMinAcc()){
+			s.currentVel.x = 0;
+		}
+    }
 
     void updateY(MovementComponent& s, JumpComponent& j, sf::Time& delta){
     	//CALCULATE JUMP / Y POSITION

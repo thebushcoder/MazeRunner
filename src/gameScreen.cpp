@@ -58,6 +58,7 @@ void GameScreen::init(){
 	int numCheckpoints = 3;
 	checkpoints = CheckpointUtil::createCheckPoints(numCheckpoints, tileMap.get(), entFactory.get());
 
+	EnemyUtil::createEnemies(3, tileMap.get(), entFactory.get(), checkpoints);
 	/////////////////////////////////////////////////////////////
 
 	//GUI STUFF

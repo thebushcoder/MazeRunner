@@ -42,6 +42,7 @@
 #include "libado/entity/systems/collisionSystem.hpp"
 #include "libado/entity/entityFactory.hpp"
 #include "libado/entity/checkpointUtil.hpp"
+#include "libado/entity/enemyUtil.hpp"
 
 class GameScreen : public Screen{
 public:

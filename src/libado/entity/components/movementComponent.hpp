@@ -11,7 +11,6 @@
 struct MovementComponent : anax::Component{
 	sf::Vector2f currentVel;
 	sf::Vector2f currentAcc;
-	float tgtVel;
 
 	MovementComponent(float s) : maxAcc(s), minAcc(s * 0.005){}
 

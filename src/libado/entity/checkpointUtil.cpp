@@ -11,6 +11,24 @@
 
 using namespace CheckpointUtil;
 
+void CheckpointUtil::placeCheckpoint(TileMap* map, anax::Entity cp, std::vector<anax::Entity>& list, float scrX, float scrY){
+	cp.getComponent<PositionComponent>().setPosition(scrX, scrY);
+
+	BodyComponent& b = cp.getComponent<BodyComponent>();
+	sf::Shape* body = (sf::Shape*)b.getShape("main");
+
+	body->setPosition(scrX, scrY);
+
+	int tX = std::floor((scrX + (body->getGlobalBounds().width / 2)) /
+			TILESIZE);
+	int tY = std::floor((scrY + (body->getGlobalBounds().height / 2)) /
+			TILESIZE);
+
+	map->getEntityLayer().setEntity(tX, tY, cp.getId().index);
+
+	list.push_back(cp);
+}
+
 std::vector<anax::Entity> CheckpointUtil::createCheckPoints(int num, TileMap* map,
 		EntityFactory* factory){
 	std::vector<anax::Entity> list;
@@ -22,7 +40,6 @@ std::vector<anax::Entity> CheckpointUtil::createCheckPoints(int num, TileMap* ma
 
 	PositionComponent& pos = factory->getPlayer().getComponent<PositionComponent>();
 
-	int prevX = 0, prevY = 0;
 	for(int i = 0; i < num; ++i){
 		anax::Entity cp = factory->createEntity("checkpoint");
 
@@ -48,28 +65,12 @@ std::vector<anax::Entity> CheckpointUtil::createCheckPoints(int num, TileMap* ma
 			float scrY = (tileY * TILESIZE);
 
 			if(magPlayer >= 25){
-				if(prevX == 0 && prevY == 0){
+				if(list.empty()){
 					// no previous CPs, check position + place
 					if(map->getCost(tileX, tileY) != Tile::Type::SOLID
 							&& map->getCost(tileX, tileY + 1) == Tile::Type::SOLID){
 
-						cp.getComponent<PositionComponent>().setPosition(scrX, scrY);
-
-						BodyComponent& b = cp.getComponent<BodyComponent>();
-						sf::Shape* body = (sf::Shape*)b.getShape("main");
-
-						body->setPosition(scrX, scrY);
-
-						int tX = std::floor((scrX + (body->getGlobalBounds().width / 2)) /
-								TILESIZE);
-						int tY = std::floor((scrY + (body->getGlobalBounds().height / 2)) /
-								TILESIZE);
-
-						map->getEntityLayer().setEntity(tX, tY, cp.getId().index);
-
-						list.push_back(cp);
-						prevX = tileX;
-						prevY = tileY;
+						placeCheckpoint(map, cp, list, scrX, scrY);
 						f = false;
 					}
 				}else{
@@ -79,34 +80,17 @@ std::vector<anax::Entity> CheckpointUtil::createCheckPoints(int num, TileMap* ma
 					for(auto e : list){
 						PositionComponent& p = e.getComponent<PositionComponent>();
 						float mag = sf::LineShape::calcLineMag(sf::Vector2f(
-								pos.screenPosition.x / TILESIZE, pos.screenPosition.y / TILESIZE),
-								sf::Vector2f(p.screenPosition.x / TILESIZE,
+								tileX, tileY), sf::Vector2f(p.screenPosition.x / TILESIZE,
 										p.screenPosition.y / TILESIZE));
 
-						if(mag <= 16){
+						if(mag <= 38){
 							f = true;
 						}
 					}
 
 					if(!f && map->getCost(tileX, tileY) != Tile::Type::SOLID
 							&& map->getCost(tileX, tileY + 1) == Tile::Type::SOLID){
-
-						cp.getComponent<PositionComponent>().setPosition(scrX, scrY);
-						BodyComponent& b = cp.getComponent<BodyComponent>();
-						sf::Shape* body = (sf::Shape*)b.getShape("main");
-
-						body->setPosition(scrX, scrY);
-
-						int tX = std::floor((scrX + (body->getGlobalBounds().width / 2)) /
-								TILESIZE);
-						int tY = std::floor((scrY + (body->getGlobalBounds().height / 2)) /
-								TILESIZE);
-
-						map->getEntityLayer().setEntity(tX, tY, cp.getId().index);
-
-						list.push_back(cp);
-						prevX = tileX;
-						prevY = tileY;
+						placeCheckpoint(map, cp, list, scrX, scrY);
 					}else{
 						f = true;
 					}
@@ -118,5 +102,3 @@ std::vector<anax::Entity> CheckpointUtil::createCheckPoints(int num, TileMap* ma
 
 	return list;
 }
-
-
