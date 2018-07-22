@@ -14,6 +14,7 @@
 #include <anax/System.hpp>
 
 #include "../components/componentsCollection.hpp"
+#include "../entityFactory.hpp"
 
 struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 	ParticleSystem(EntityFactory* f) : factory(f){

@@ -15,9 +15,10 @@
 #include "collisionModule.hpp"
 #include "../particleSystem.hpp"
 
+class GameScreen;
 class PlayerCollision : public CollisionModule{
 public:
-	PlayerCollision(TileMap* map, ParticleSystem* pSys);
+	PlayerCollision(TileMap* map, GameScreen* s);
 	~PlayerCollision();
 
 	void preCheck(anax::Entity entity);
@@ -28,6 +29,7 @@ public:
 	void entityCollision(anax::Entity entity, anax::Entity collider, int tileX, int tileY);
 
 private:
+	GameScreen* screen;
 	ParticleSystem* particleSys;
 	bool hasRopeAnchor = false, ropeIsValid = false;
 

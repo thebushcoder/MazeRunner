@@ -28,8 +28,10 @@ void GameScreen::init(){
 	entityWorld->addSystem(*animSys);
 	particleSys = std::make_shared<ParticleSystem>(entFactory.get());
 	entityWorld->addSystem(*particleSys);
-	collisionSys = std::make_shared<CollisionSystem>(tileMap.get(), particleSys.get());
+	collisionSys = std::make_shared<CollisionSystem>(tileMap.get(), this);
 	entityWorld->addSystem(*collisionSys);
+	invulnerabilitySys = std::make_shared<InvulnerabilitySystem>();
+	entityWorld->addSystem(*invulnerabilitySys);
 
 //	mapView = std::unique_ptr<WorldView>(new WorldView(manager->getWindow()->getSize().x,
 //			manager->getWindow()->getSize().y, input.get()));
@@ -58,7 +60,7 @@ void GameScreen::init(){
 	int numCheckpoints = 3;
 	checkpoints = CheckpointUtil::createCheckPoints(numCheckpoints, tileMap.get(), entFactory.get());
 
-	EnemyUtil::createEnemies(3, tileMap.get(), entFactory.get(), checkpoints);
+	EnemyUtil::createEnemies(6, tileMap.get(), entFactory.get(), checkpoints);
 	/////////////////////////////////////////////////////////////
 
 	//GUI STUFF
@@ -72,6 +74,10 @@ void GameScreen::init(){
 	auto cpWidget = std::make_shared<CheckpointWidget>(manager->getTheme(), this,
 			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y, numCheckpoints);
 	manager->getGui()->add(cpWidget, "cpWidget");
+
+	auto livesWidget = std::make_shared<LivesWidget>(manager->getTheme(), entFactory->getPlayer(),
+			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y);
+	manager->getGui()->add(livesWidget, "livesWidget");
 
 	/////////////////////////////////////////////////////////////
 
@@ -136,6 +142,7 @@ void GameScreen::update(sf::Time& delta){
 	ropeSys->update(delta);
 	physicsSys->update(delta);
 	collisionSys->update(delta);
+	invulnerabilitySys->update(delta);
 	particleSys->update(delta);
 	animSys->update(delta);
 
@@ -144,7 +151,7 @@ void GameScreen::update(sf::Time& delta){
 	manager->getGui()->updateTime(delta);
 }
 void GameScreen::render(sf::Time& delta){
-	manager->getWindow()->clear(sf::Color::Black);
+	manager->getWindow()->clear(sf::Color(71,71,71));
 
 	manager->getWindow()->setView(*mapView->getView());
 	tileMap->render(manager->getWindow());

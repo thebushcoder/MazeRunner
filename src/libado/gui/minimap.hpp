@@ -10,8 +10,7 @@
 
 #include <TGUI/TGUI.hpp>
 #include "../map/tileMap.hpp"
-#include "../entity/components/positionComponent.hpp"
-#include "../entity/components/bodyComponent.hpp"
+#include "../entity/components/componentsCollection.hpp"
 
 class GameScreen;
 class MiniMap : public tgui::Panel{
@@ -27,15 +26,11 @@ public:
 protected:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
-	anax::Entity player;
-	std::vector<anax::Entity> checkpoints;
+	anax::World* world;
 	TileMap* map;
-
 
 	tgui::Canvas::Ptr canvas;
 	sf::Texture texture;
 };
-
-
 
 #endif /* LIBADO_GUI_MINIMAP_HPP_ */

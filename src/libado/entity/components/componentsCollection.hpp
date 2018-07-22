@@ -20,6 +20,9 @@
 #include "animationComponent.hpp"
 #include "particleComponent.hpp"
 #include "enemyComponent.hpp"
+#include "mapComponent.hpp"
+#include "livesComponent.hpp"
+#include "invulnerabilityComponent.hpp"
 
 #endif /* LIBADO_ENTITY_COMPONENTS_COMPONENTSCOLLECTION_HPP_ */
 

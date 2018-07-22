@@ -9,12 +9,9 @@
 #include "../../gameScreen.hpp"
 
 MiniMap::MiniMap(tgui::Theme::Ptr theme, GameScreen* screen) :
-	player(screen->getEntityFactory()->getPlayer()), checkpoints(screen->getCheckpoints()),
-	map(screen->getTileMap()){
+	world(screen->getEntityFactory()->world), map(screen->getTileMap()){
 
 	setBackgroundColor(tgui::Color(0, 0, 204, 198));
-//	getRenderer()->setBorderColor(tgui::Color(255, 255, 255));
-//	getRenderer()->setBorders(2, 2);
 }
 
 void MiniMap::init(sf::RenderWindow* w){
@@ -37,8 +34,9 @@ void MiniMap::update(sf::Time elapsedTime){
 	texture.create(canvas->getSize().x, canvas->getSize().y);
 
 	sf::Image image = sf::Image();
-	image.create(canvas->getSize().x, canvas->getSize().y, sf::Color::Black);
+	image.create(canvas->getSize().x, canvas->getSize().y, sf::Color(71,71,71));
 
+	// draw maze walls/floors
 	for(int x = 0; x < map->getWidth(); ++x){
 		for(int y = 0; y < map->getHeight(); ++y){
 			Tile::Type t = map->getCost(x, y);
@@ -55,48 +53,27 @@ void MiniMap::update(sf::Time elapsedTime){
 		}
 	}
 
-	BodyComponent& b = player.getComponent<BodyComponent>();
-	sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
+	// draw entities
+	for(auto& e : world->getEntities()){
+		if(e.hasComponent<MapComponent>()){
+			MapComponent& mC = e.getComponent<MapComponent>();
+			PositionComponent& pos = e.getComponent<PositionComponent>();
 
-	int tileX = std::floor((body->getPosition().x +
-			(body->getGlobalBounds().width / 2)) / TILESIZE);
-	int tileY = std::floor((body->getPosition().y +
-			(body->getGlobalBounds().height / 2)) / TILESIZE);
+			int tileX = std::floor(pos.screenPosition.x / TILESIZE);
+			int tileY = std::floor(pos.screenPosition.y / TILESIZE);
 
-	tileX = (tileX == 0 ? tileX : tileX * 2);
-	tileY = (tileY == 0 ? tileY : tileY * 2);
+			tileX = (tileX == 0 ? tileX : tileX * 2);
+			tileY = (tileY == 0 ? tileY : tileY * 2);
 
-	image.setPixel(tileX, tileY, sf::Color::Red);
-	image.setPixel(tileX, tileY + 1, sf::Color::Red);
-	image.setPixel(tileX, tileY + 2, sf::Color::Red);
-	image.setPixel(tileX + 1, tileY, sf::Color::Red);
-	image.setPixel(tileX + 2, tileY, sf::Color::Red);
-	image.setPixel(tileX + 1, tileY + 1, sf::Color::Red);
-	image.setPixel(tileX + 1, tileY + 2, sf::Color::Red);
-	image.setPixel(tileX + 2, tileY + 1, sf::Color::Red);
-	image.setPixel(tileX + 2, tileY + 2, sf::Color::Red);
+			int j = e.hasComponent<PlayerComponent>() ||
+					e.hasComponent<CheckpointComponent>() ? 5 : 3;
 
-	for(auto e : checkpoints){
-		if(!e.isValid()) continue;
-
-		PositionComponent& pos = e.getComponent<PositionComponent>();
-
-		tileX = std::floor(pos.screenPosition.x / TILESIZE);
-		tileY = std::floor(pos.screenPosition.y / TILESIZE);
-
-		tileX = (tileX == 0 ? tileX : tileX * 2);
-		tileY = (tileY == 0 ? tileY : tileY * 2);
-
-		sf::Color c = sf::Color(0, 153, 204);
-		image.setPixel(tileX, tileY, c);
-		image.setPixel(tileX, tileY + 1, c);
-		image.setPixel(tileX, tileY + 2, c);
-		image.setPixel(tileX + 1, tileY, c);
-		image.setPixel(tileX + 2, tileY, c);
-		image.setPixel(tileX + 1, tileY + 1, c);
-		image.setPixel(tileX + 1, tileY + 2, c);
-		image.setPixel(tileX + 2, tileY + 1, c);
-		image.setPixel(tileX + 2, tileY + 2, c);
+			for(int x = 0; x < j; ++x){
+				for(int y = 0; y < j; ++y){
+					image.setPixel(tileX + x, tileY + y, mC.getColor());
+				}
+			}
+		}
 	}
 
 	texture.update(image);

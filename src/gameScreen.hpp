@@ -31,6 +31,7 @@
 #include "libado/gui/widgetLuaBind.hpp"
 #include "libado/gui/minimap.hpp"
 #include "libado/gui/checkpointWidget.hpp"
+#include "libado/gui/livesWidget.hpp"
 #include "libado/map/tileMap.hpp"
 #include "libado/util/mazeGen.hpp"
 #include "libado/entity/systems/renderSystem.hpp"
@@ -40,6 +41,7 @@
 #include "libado/entity/systems/animationSystem.hpp"
 #include "libado/entity/systems/particleSystem.hpp"
 #include "libado/entity/systems/collisionSystem.hpp"
+#include "libado/entity/systems/invulnerabilitySystem.hpp"
 #include "libado/entity/entityFactory.hpp"
 #include "libado/entity/checkpointUtil.hpp"
 #include "libado/entity/enemyUtil.hpp"
@@ -67,6 +69,9 @@ public:
 	EntityFactory* getEntityFactory(){
 		return entFactory.get();
 	}
+	ParticleSystem* getParticleSystem(){
+		return particleSys.get();
+	}
 protected:
 	std::shared_ptr<TextureAtlas> atlas;
 
@@ -81,6 +86,7 @@ protected:
 	std::shared_ptr<PhysicsSystem> physicsSys;
 	std::shared_ptr<CollisionSystem> collisionSys;
 	std::shared_ptr<ParticleSystem> particleSys;
+	std::shared_ptr<InvulnerabilitySystem> invulnerabilitySys;
 
 	std::shared_ptr<TileMap> tileMap;
 	std::unique_ptr<WorldView> mapView;

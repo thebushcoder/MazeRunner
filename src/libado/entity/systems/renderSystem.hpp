@@ -48,6 +48,20 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
 						i->move(p.offsetPosition);
 						m_renderWindow->draw(*i, shader);
 					}
+				}else if(entity.hasComponent<InvulnerabilityComponent>()){
+					InvulnerabilityComponent& iC = entity.getComponent<InvulnerabilityComponent>();
+
+					sf::Shader* shader = &iC.getPulseShader();
+
+					// set elapsed time for shader. Needed for timed(delta-like) operations
+					shader->setUniform("u_time", iC.elapsed.asSeconds());
+					printf("delta time: %f\n", delta.asSeconds());
+
+					for(auto& i : s.getImgComponents()){
+						i->setPosition(p.screenPosition.x, p.screenPosition.y);
+						i->move(p.offsetPosition);
+						m_renderWindow->draw(*i, shader);
+					}
 				}else{
 					for(auto& i : s.getImgComponents()){
 						i->setPosition(p.screenPosition.x, p.screenPosition.y);

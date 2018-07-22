@@ -1,0 +1,13 @@
+// https://stackoverflow.com/questions/48548292/sfml-c-flashing-hit-effect-on-sfsprite
+
+uniform vec4 flashColor;
+uniform float u_time;
+
+void main(){
+	// divide elapsed time by 0.3 to calc num intervals; alternate colors every other interval
+	if(mod(floor(u_time / 0.3), 2) == 0){
+    		gl_FragColor = vec4(0, 1, 0, 1.0);
+	}else{
+    		gl_FragColor = vec4(1, 0, 0, 1.0);
+	}
+}

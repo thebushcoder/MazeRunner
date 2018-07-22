@@ -12,6 +12,9 @@
  */
 EntityFactory::EntityFactory(std::string jsonPath, anax::World* world) : world(world){
 	loadEntityProfiles(jsonPath);
+
+	std::random_device rd;
+	gen = std::mt19937_64(rd());
 }
 //used for read only operations. DO NOT ADD TO JSON VALUE
 rapidjson::Value& EntityFactory::getRawEntityData(std::string name){
@@ -34,6 +37,14 @@ anax::Entity EntityFactory::createEntity(std::string name){
 	e.addComponent<PositionComponent>();
 
 	rapidjson::Value& profile = entityProfiles[name.c_str()];
+
+	float randSize = 0;
+	if(profile.HasMember("randSize")){
+		std::uniform_int_distribution<> sizeDist(profile["randSize"].GetArray()[0].GetInt(),
+				profile["randSize"].GetArray()[1].GetInt());
+		randSize = sizeDist(gen);
+	}
+
 	//Must be non-const member iterator so that refs can be passed
 	for (rapidjson::Value::MemberIterator itr = profile.MemberBegin();
 	    itr != profile.MemberEnd(); ++itr)	{
@@ -73,9 +84,18 @@ anax::Entity EntityFactory::createEntity(std::string name){
 
 					s.addImgComponent(l);
 				}else if(i.HasMember("tri")){
-					std::unique_ptr<sf::Shape> l = std::unique_ptr<sf::Shape>(
-							new sf::CircleShape(i["tri"]["w"].GetFloat(), 3)
-					);
+					std::unique_ptr<sf::Shape> l;
+
+					if(randSize > 0){
+						l = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(randSize, 3)
+						);
+					}else{
+						l = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(i["tri"]["w"].GetFloat(), 3)
+						);
+					}
+
 					l->setFillColor(sf::Color(
 							i["tri"]["c"][0].GetInt(),
 							i["tri"]["c"][1].GetInt(),
@@ -91,9 +111,17 @@ anax::Entity EntityFactory::createEntity(std::string name){
 
 					s.addImgComponent(l);
 				}else if(i.HasMember("circle")){
-					std::unique_ptr<sf::Shape> c = std::unique_ptr<sf::Shape>(
-							new sf::CircleShape(i["circle"]["w"].GetFloat())
-					);
+					std::unique_ptr<sf::Shape> c;
+
+					if(randSize > 0){
+						c = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(randSize)
+						);
+					}else{
+						c = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(i["circle"]["w"].GetFloat())
+						);
+					}
 
 					c->setFillColor(sf::Color(
 							i["circle"]["c"][0].GetInt(),
@@ -142,9 +170,17 @@ anax::Entity EntityFactory::createEntity(std::string name){
 					}
 					b.addBodyComponent(i["rect"]["k"].GetString(), r);
 				}else if(i.HasMember("circle")){
-					std::unique_ptr<sf::Shape> c = std::unique_ptr<sf::Shape>(
-							new sf::CircleShape(i["circle"]["w"].GetFloat())
-					);
+					std::unique_ptr<sf::Shape> c;
+
+					if(randSize > 0){
+						c = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(randSize - 2)
+						);
+					}else{
+						c = std::unique_ptr<sf::Shape>(
+								new sf::CircleShape(i["circle"]["w"].GetFloat())
+						);
+					}
 
 					b.addBodyComponent(i["circle"]["k"].GetString(), c);
 				}
@@ -166,11 +202,28 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		if(strcmp(itr->name.GetString(), "particle") == 0){
 			e.addComponent<ParticleComponent>(itr->value);
 		}
+		if(strcmp(itr->name.GetString(), "lives") == 0){
+			e.addComponent<LivesComponent>(itr->value.GetInt());
+		}
 		if(strcmp(itr->name.GetString(), "enemy") == 0){
 			e.addComponent<EnemyComponent>();
 		}
+		if(strcmp(itr->name.GetString(), "map") == 0){
+			e.addComponent<MapComponent>(sf::Color(
+					itr->value.GetArray()[0].GetInt(),
+					itr->value.GetArray()[1].GetInt(),
+					itr->value.GetArray()[2].GetInt()
+					));
+		}
 		if(strcmp(itr->name.GetString(), "move") == 0){
-			e.addComponent<MovementComponent>(itr->value.GetFloat());
+			if(itr->value.IsArray()){
+				std::uniform_real_distribution<> speedDist(
+						itr->value.GetArray()[0].GetFloat(),
+						itr->value.GetArray()[1].GetFloat());
+				e.addComponent<MovementComponent>(speedDist(gen));
+			}else{
+				e.addComponent<MovementComponent>(itr->value.GetFloat());
+			}
 		}
 		if(strcmp(itr->name.GetString(), "player") == 0){
 			e.addComponent<PlayerComponent>();

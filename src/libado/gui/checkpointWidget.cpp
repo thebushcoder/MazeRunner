@@ -10,8 +10,8 @@
 
 CheckpointWidget::CheckpointWidget(tgui::Theme::Ptr theme, GameScreen* s, float screenW, float screenH, int num){
 	screen = s;
+	float rad = 14;
 	for(int i = 0; i < num; ++i){
-		float rad = 14;
 		sf::CircleShape cp(rad, 3);
 		cp.setRotation(180);
 		cp.setFillColor(sf::Color::Transparent);

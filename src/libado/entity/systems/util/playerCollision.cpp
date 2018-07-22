@@ -6,9 +6,12 @@
  */
 
 #include "playerCollision.hpp"
+#include "../../../../gameScreen.hpp"
+#include "../../../../mainMenu.hpp"
 
-PlayerCollision::PlayerCollision(TileMap* map, ParticleSystem* pSys) :
-	CollisionModule(map, true, true), particleSys(pSys){}
+PlayerCollision::PlayerCollision(TileMap* map, GameScreen* s) :
+	CollisionModule(map, true, true), screen(s),
+	particleSys(s->getParticleSystem()){}
 PlayerCollision::~PlayerCollision(){}
 
 void PlayerCollision::preCheck(anax::Entity entity){
@@ -61,6 +64,27 @@ void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider
 
 		collider.kill();
 	}
+
+	if(collider.hasComponent<EnemyComponent>()){
+		if(!entity.hasComponent<InvulnerabilityComponent>()){
+			LivesComponent& lC = entity.getComponent<LivesComponent>();
+			lC.decrementCounter(1);
+
+			if(lC.getLivesCounter() == 0){
+				screen->setStatus(QUIT);
+				MainMenu* s = new MainMenu();
+				s->setManager(screen->getManager());
+				screen->getManager()->setCurrentScreen(s);
+			}else{
+				float invulnTime = screen->getEntityFactory()->
+						getRawEntityData("player")["invuln"].GetFloat();
+
+				entity.addComponent<InvulnerabilityComponent>(invulnTime);
+				entity.activate();
+			}
+		}
+	}
+
 }
 void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 	JumpComponent& j = entity.getComponent<JumpComponent>();

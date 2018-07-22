@@ -21,9 +21,11 @@
 #include "util/playerCollision.hpp"
 #include "util/enemyCollision.hpp"
 
+class GameScreen;
 struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComponent>>{
-	CollisionSystem(TileMap* m, ParticleSystem* pSys) : map(m){
-		modules["player"] = std::unique_ptr<CollisionModule>(new PlayerCollision(map, pSys));
+	CollisionSystem(TileMap* m, GameScreen* s) : map(m){
+		modules["player"] = std::unique_ptr<CollisionModule>(new PlayerCollision(
+				m, s));
 		modules["enemy"] = std::unique_ptr<CollisionModule>(new EnemyCollision(map));
 	}
 
@@ -79,6 +81,11 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 
 			// entity col check
 			checkEntityCollisions(tileX, tileY, entity, body);
+
+			tileX = std::floor((body->getPosition().x +
+					(body->getGlobalBounds().width / 2)) / TILESIZE);
+			tileY = std::floor((body->getPosition().y +
+					(body->getGlobalBounds().height / 2)) / TILESIZE);
 
 			//POSITION ENTITY
 			p.screenPosition.x = body->getPosition().x;

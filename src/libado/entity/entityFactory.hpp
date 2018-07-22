@@ -32,6 +32,7 @@ struct EntityFactory{
 	anax::Entity& getPlayer();
 private:
 	anax::Entity player;
+	std::mt19937_64 gen;
 };
 
 #endif /* LIBADO_ENTITY_ENTITYFACTORY_HPP_ */
