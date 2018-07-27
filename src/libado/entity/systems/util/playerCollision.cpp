@@ -79,7 +79,10 @@ void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider
 				float invulnTime = screen->getEntityFactory()->
 						getRawEntityData("player")["invuln"].GetFloat();
 
+				SpriteComponent& s = entity.getComponent<SpriteComponent>();
 				entity.addComponent<InvulnerabilityComponent>(invulnTime);
+				entity.getComponent<InvulnerabilityComponent>().getPulseShader().setUniform("tex", *s.getTexture());
+
 				entity.activate();
 			}
 		}

@@ -1,5 +1,5 @@
 {
-	"player":{"player":1, "invuln":1.8, "lives":3, "map":[255,26,26], "rope":1, "jump":{"jAcc":21,"jTime":0.21,"jSmlWall":0.05,"jRest":0.10}, "sprite":[{"rect":{"w":26, "h":42, "c":[153,0,0]}}, {"rect":{"w":10,"h":4, "c":[255,230,255], "p":[-16,-4]}}], "body":[{"collisionMod":"player"},{"rect":{"k":"main", "w":22, "h":38, "p":[-2,-2]}}], "move":22.0},
+	"player":{"player":1, "invuln":1.8, "lives":3, "map":[255,26,26], "rope":1, "jump":{"jAcc":21,"jTime":0.21,"jSmlWall":0.05,"jRest":0.10}, "sprite":[{"file":"bin/imgs/player.png"}], "body":[{"collisionMod":"player"},{"rect":{"k":"main", "w":22, "h":38, "p":[-2,-2]}}], "move":22.0},
 	"ninjaRope":{"sprite":[{"line":{"w":6, "c":[172,0,230]}}], "ropeD":{"extS":400.0,"maxL":348, "reelS":350}},
 	"checkpoint":{"map":[0,0,188], "checkp":1, "sprite":[{"tri":{"w":22, "r":180, "c":[0,0,125]}}], "animation":{"hover":{"s":14,"o":12}, "glow":{"s":3,"min":[0,0,125],"max":[0,0,255]}}, "body":[{"circle":{"k":"main", "w":24}}]},
 	"cpParticle":{"randSize":[6,12],"particle":{"maxT":0.8, "f":2}, "sprite":[{"tri":{"r":180, "c":[0,0,255]}}]},

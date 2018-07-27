@@ -32,9 +32,7 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 
 			if(entity.hasComponent<RopeDetailsComponent>()){
-				for(auto& i : s.getImgComponents()){
-					m_renderWindow->draw(*i);
-				}
+				m_renderWindow->draw(*s.getShape());
 			}else{
 				if(entity.hasComponent<AnimationComponent>() &&
 						entity.getComponent<AnimationComponent>().getCanGlow()){
@@ -43,10 +41,14 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
 					// set elapsed time for shader. Needed for timed(delta-like) operations
 					shader->setUniform("u_time", shaderClock.getElapsedTime().asSeconds());
 
-					for(auto& i : s.getImgComponents()){
-						i->setPosition(p.screenPosition.x, p.screenPosition.y);
-						i->move(p.offsetPosition);
-						m_renderWindow->draw(*i, shader);
+					if(s.hasTexture()){
+						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getSprite()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getSprite(), shader);
+					}else{
+						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getShape()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getShape(), shader);
 					}
 				}else if(entity.hasComponent<InvulnerabilityComponent>()){
 					InvulnerabilityComponent& iC = entity.getComponent<InvulnerabilityComponent>();
@@ -55,20 +57,28 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
 
 					// set elapsed time for shader. Needed for timed(delta-like) operations
 					shader->setUniform("u_time", iC.elapsed.asSeconds());
-					printf("delta time: %f\n", delta.asSeconds());
 
-					for(auto& i : s.getImgComponents()){
-						i->setPosition(p.screenPosition.x, p.screenPosition.y);
-						i->move(p.offsetPosition);
-						m_renderWindow->draw(*i, shader);
+					if(s.hasTexture()){
+						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getSprite()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getSprite(), shader);
+					}else{
+						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getShape()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getShape(), shader);
 					}
 				}else{
-					for(auto& i : s.getImgComponents()){
-						i->setPosition(p.screenPosition.x, p.screenPosition.y);
-						i->move(p.offsetPosition);
-						m_renderWindow->draw(*i);
+					if(s.hasTexture()){
+						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getSprite()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getSprite());
+					}else{
+						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+						s.getShape()->move(p.offsetPosition);
+						m_renderWindow->draw(*s.getShape());
 					}
 				}
+
 			}
 
 //			if(entity.hasComponent<CheckpointComponent>()){

@@ -13,14 +13,32 @@
 struct SpriteComponent : anax::Component{
 	SpriteComponent(){}
 
-	void addImgComponent(std::unique_ptr<sf::Shape>& comp){
-		imgComponents.push_back(std::move(comp));
+	void setTexture(std::unique_ptr<sf::Texture>& t){
+		tex = std::move(t);
+		sprite = std::unique_ptr<sf::Sprite>(new sf::Sprite(*tex.get()));
 	}
-	std::vector<std::unique_ptr<sf::Shape> >& getImgComponents(){
-		return imgComponents;
+	void setShape(std::unique_ptr<sf::Shape>& s){
+		shape = std::move(s);
+	}
+	sf::Sprite* getSprite(){
+		return sprite.get();
+	}
+	sf::Texture* getTexture(){
+		return tex.get();
+	}
+	sf::Shape* getShape(){
+		return shape.get();
+	}
+	bool hasTexture(){
+		return tex.get() != nullptr;
+	}
+	bool hasShape(){
+		return tex.get() != nullptr;
 	}
 private:
-	std::vector<std::unique_ptr<sf::Shape> > imgComponents;
+	std::unique_ptr<sf::Texture> tex;
+	std::unique_ptr<sf::Shape> shape;
+	std::unique_ptr<sf::Sprite> sprite;
 };
 
 #endif /* LIBADO_ENTITY_COMPONENTS_SPRITECOMPONENT_HPP_ */

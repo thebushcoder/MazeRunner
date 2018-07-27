@@ -109,7 +109,7 @@ struct NinjaRopeSystem : anax::System<anax::Requires<RopeDetailsComponent>>{
 			r.src = p.screenPosition;
 
 			SpriteComponent& s = e.getComponent<SpriteComponent>();
-			((sf::LineShape*)s.getImgComponents()[0].get())->init(r.src, r.extEnd);
+			((sf::LineShape*)s.getShape())->init(r.src, r.extEnd);
 		}
 	}
 
@@ -253,7 +253,7 @@ private:
 
 				map->getEntityLayer().setEntity(tileX, tileY, r.srcEntity.getId().index);
 
-				((sf::LineShape*)spr.getImgComponents()[0].get())->init(r.src, r.anchor);
+				((sf::LineShape*)spr.getShape())->init(r.src, r.anchor);
 			}
 		}
     }

@@ -52,24 +52,13 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		if(strcmp(itr->name.GetString(), "sprite") == 0){
 			e.addComponent<SpriteComponent>();
 			SpriteComponent& s = e.getComponent<SpriteComponent>();
+
 			for (auto& i : itr->value.GetArray()){
-				if(i.HasMember("rect")){
-					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(
-							new sf::RectangleShape());
-					((sf::RectangleShape*)r.get())->setSize(sf::Vector2f(
-							i["rect"]["w"].GetFloat(),
-							i["rect"]["h"].GetFloat()
-							));
-					r->setFillColor(sf::Color(
-							i["rect"]["c"][0].GetInt(),
-							i["rect"]["c"][1].GetInt(),
-							i["rect"]["c"][2].GetInt()
-							));
-					if(i["rect"].HasMember("p")){
-						r->setOrigin(i["rect"]["p"][0].GetFloat(),
-								i["rect"]["p"][1].GetFloat());
-					}
-					s.addImgComponent(r);
+				if(i.HasMember("file")){
+					std::unique_ptr<sf::Texture> t = std::unique_ptr<sf::Texture>(
+							new sf::Texture());
+					t->loadFromFile(i["file"].GetString());
+					s.setTexture(t);
 				}else if(i.HasMember("line")){
 					std::unique_ptr<sf::Shape> l = std::unique_ptr<sf::Shape>(
 							new sf::LineShape(sf::Vector2f(0,0), sf::Vector2f(0,0))
@@ -82,7 +71,7 @@ anax::Entity EntityFactory::createEntity(std::string name){
 							i["line"]["c"][2].GetInt()
 							));
 
-					s.addImgComponent(l);
+					s.setShape(l);
 				}else if(i.HasMember("tri")){
 					std::unique_ptr<sf::Shape> l;
 
@@ -109,7 +98,7 @@ anax::Entity EntityFactory::createEntity(std::string name){
 					l->setOrigin(l->getGlobalBounds().width * 1.2,
 							l->getGlobalBounds().height * 1.2);
 
-					s.addImgComponent(l);
+					s.setShape(l);
 				}else if(i.HasMember("circle")){
 					std::unique_ptr<sf::Shape> c;
 
@@ -140,7 +129,7 @@ anax::Entity EntityFactory::createEntity(std::string name){
 								));
 					}
 
-					s.addImgComponent(c);
+					s.setShape(c);
 				}
 			}
 		}

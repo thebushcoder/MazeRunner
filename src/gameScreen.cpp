@@ -33,17 +33,13 @@ void GameScreen::init(){
 	invulnerabilitySys = std::make_shared<InvulnerabilitySystem>();
 	entityWorld->addSystem(*invulnerabilitySys);
 
-//	mapView = std::unique_ptr<WorldView>(new WorldView(manager->getWindow()->getSize().x,
-//			manager->getWindow()->getSize().y, input.get()));
-
 	/////////////////////////////////////////////////////////////
 
 	MazeGen::getInstance()->generateMaze(tileMap.get());
 
 	anax::Entity e = entFactory->createEntity("player");
 	float pX = TILESIZE * 1.5, pY = TILESIZE * 2;
-	int tileX = std::floor(pX / TILESIZE);
-	int tileY = std::floor(pY / TILESIZE);
+	int tileX = std::floor(pX / TILESIZE), tileY = std::floor(pY / TILESIZE);
 
 	e.getComponent<PositionComponent>().setPosition(pX, pY);
 	tileMap->getEntityLayer().setEntity(tileX, tileY, e.getId().index);
