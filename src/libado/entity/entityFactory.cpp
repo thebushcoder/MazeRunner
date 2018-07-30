@@ -59,6 +59,11 @@ anax::Entity EntityFactory::createEntity(std::string name){
 							new sf::Texture());
 					t->loadFromFile(i["file"].GetString());
 					s.setTexture(t);
+					if(i.HasMember("off")){
+						s.getSprite()->setOrigin(i["off"].GetArray()[0].GetInt(),
+								i["off"].GetArray()[1].GetInt());
+					}
+
 				}else if(i.HasMember("line")){
 					std::unique_ptr<sf::Shape> l = std::unique_ptr<sf::Shape>(
 							new sf::LineShape(sf::Vector2f(0,0), sf::Vector2f(0,0))
@@ -178,13 +183,6 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		if(strcmp(itr->name.GetString(), "checkp") == 0){
 			e.addComponent<CheckpointComponent>();
 		}
-		if(strcmp(itr->name.GetString(), "rope") == 0){
-			e.addComponent<RopeComponent>();
-		}
-		if(strcmp(itr->name.GetString(), "ropeD") == 0){
-			e.addComponent<RopeDetailsComponent>(itr->value["extS"].GetFloat(),
-					itr->value["maxL"].GetFloat(), itr->value["reelS"].GetFloat());
-		}
 		if(strcmp(itr->name.GetString(), "animation") == 0){
 			e.addComponent<AnimationComponent>(itr->value);
 		}
@@ -196,6 +194,9 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		}
 		if(strcmp(itr->name.GetString(), "enemy") == 0){
 			e.addComponent<EnemyComponent>();
+		}
+		if(strcmp(itr->name.GetString(), "jetpack") == 0){
+			e.addComponent<JetPackComponent>(itr->value);
 		}
 		if(strcmp(itr->name.GetString(), "map") == 0){
 			e.addComponent<MapComponent>(sf::Color(

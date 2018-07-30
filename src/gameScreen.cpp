@@ -22,8 +22,6 @@ void GameScreen::init(){
 
 	physicsSys = std::make_shared<PhysicsSystem>(tileMap.get());
 	entityWorld->addSystem(*physicsSys);
-	ropeSys = std::make_shared<NinjaRopeSystem>(tileMap.get());
-	entityWorld->addSystem(*ropeSys);
 	animSys = std::make_shared<AnimationSystem>();
 	entityWorld->addSystem(*animSys);
 	particleSys = std::make_shared<ParticleSystem>(entFactory.get());
@@ -53,6 +51,9 @@ void GameScreen::init(){
 			manager->getWindow(), mapView->getView());
 	entityWorld->addSystem(*controller);
 
+	jetpackSys = std::make_shared<JetPackSystem>(particleSys.get(), manager->getWindow(), mapView->getView());
+	entityWorld->addSystem(*jetpackSys);
+
 	int numCheckpoints = 3;
 	checkpoints = CheckpointUtil::createCheckPoints(numCheckpoints, tileMap.get(), entFactory.get());
 
@@ -68,12 +69,19 @@ void GameScreen::init(){
 	manager->getGui()->add(minimap, "minimap");
 
 	auto cpWidget = std::make_shared<CheckpointWidget>(manager->getTheme(), this,
-			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y, numCheckpoints);
+			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y,
+			numCheckpoints);
 	manager->getGui()->add(cpWidget, "cpWidget");
 
-	auto livesWidget = std::make_shared<LivesWidget>(manager->getTheme(), entFactory->getPlayer(),
-			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y);
+	auto livesWidget = std::make_shared<LivesWidget>(manager->getTheme(),
+			entFactory->getPlayer(), manager->getWindow()->getSize().x,
+			manager->getWindow()->getSize().y);
 	manager->getGui()->add(livesWidget, "livesWidget");
+
+	auto jetPackWidget = std::make_shared<JetPackWidget>(manager->getTheme(),
+			entFactory->getPlayer(), manager->getWindow()->getSize().x,
+			manager->getWindow()->getSize().y);
+	manager->getGui()->add(jetPackWidget, "jetPackWidget");
 
 	/////////////////////////////////////////////////////////////
 
@@ -82,8 +90,6 @@ void GameScreen::init(){
 
 	input->getActionSys().connect("physics_debug", std::bind([this](){
 		if(input->isGuiFocused()) return false;
-
-		ropeSys->isDrawingDebug = !ropeSys->isDrawingDebug;
 
 		return true;
 	}));
@@ -135,9 +141,9 @@ void GameScreen::update(sf::Time& delta){
 	entityWorld->refresh();
 
 	controller->update(delta);
-	ropeSys->update(delta);
 	physicsSys->update(delta);
 	collisionSys->update(delta);
+	jetpackSys->update(delta);
 	invulnerabilitySys->update(delta);
 	particleSys->update(delta);
 	animSys->update(delta);
@@ -152,8 +158,6 @@ void GameScreen::render(sf::Time& delta){
 	manager->getWindow()->setView(*mapView->getView());
 	tileMap->render(manager->getWindow());
 	renderSys->render(delta);
-
-	ropeSys->drawDebug(manager->getWindow());
 
 	manager->getGui()->draw();
 

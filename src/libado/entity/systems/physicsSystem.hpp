@@ -43,11 +43,21 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
 
 			if(entity.hasComponent<PlayerComponent>()){
-				updatePlayer(entity, delta);
+				JetPackComponent& jet = entity.getComponent<JetPackComponent>();
 
 				body->setPosition(p.screenPosition.x, p.screenPosition.y);
-				body->move(s.currentVel.x, s.currentVel.y);
+
+				if(jet.isFired && jet.getCharge() > 0.0){
+					body->move(jet.vel.x * jet.dir.x, jet.vel.y * jet.dir.y);
+				}else{
+					// move player
+					updatePlayer(entity, delta);
+
+					body->move(s.currentVel.x, s.currentVel.y);
+				}
+
 			}else{
+				// move an entity
 				s.setXVec(s.getMaxAcc() * delta.asSeconds());
 				s.setYVec(s.getMaxAcc() * delta.asSeconds());
 
@@ -60,11 +70,6 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 			tileY = std::floor((body->getPosition().y +
 					(body->getGlobalBounds().height / 2)) / TILESIZE);
 
-//			if(!entity.hasComponent<PlayerComponent>()){
-//				p.screenPosition.x = body->getPosition().x;
-//				p.screenPosition.y = body->getPosition().y;
-//			}
-
 			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
 		}
     }
@@ -76,25 +81,14 @@ private:
 		MovementComponent& s = entity.getComponent<MovementComponent>();
 		JumpComponent& j = entity.getComponent<JumpComponent>();
 
-		// rope swing physics
-		bool hasRopeAnchor = false;
-    	if(entity.hasComponent<RopeComponent>()){
-    		anax::Entity rope = entity.getComponent<RopeComponent>().rope;
-    		if(rope.isValid()){
-    			hasRopeAnchor = rope.getComponent<RopeDetailsComponent>().isAnchored;
-    		}
-    	}
+		// jump and gravity
+		updateY(s, j, delta);
 
-    	// horizontal movement, jump, gravity - if not rope swinging
-		if(!hasRopeAnchor){
-			// jump and gravity
-			updateY(s, j, delta);
-
-			s.setXVec(s.currentAcc.x * delta.asSeconds());
-			s.currentVel.x *= 0.962f;	// friction
-			if(j.inAir){
-				s.currentVel.x *= 0.982f;	// additional air friction - more natural arc
-			}
+    	// horizontal movement
+		s.setXVec(s.currentAcc.x * delta.asSeconds());
+		s.currentVel.x *= 0.962f;	// friction
+		if(j.inAir){
+			s.currentVel.x *= 0.982f;	// additional air friction - more natural arc
 		}
 
 		//	stop player moving if speed below min threshold(prevents infinite sliding)
@@ -107,13 +101,18 @@ private:
     	//CALCULATE JUMP / Y POSITION
 		if(j.jumping && j.jPressed){
 			j.jumpTime += delta;
+
+			// keep jumping?
 			if(j.jumpTime.asSeconds() >= j.getMaxJumpTime()){
 				j.toggleJump(false);
 			}
+
 			wallJump(s, j, delta);
 
 			s.setYVec(-j.getJumpAcc() * delta.asSeconds());
 		}
+
+		// apply gravity
 		if(j.inAir){
 			s.currentVel.y += (GRAVITY * delta.asSeconds());
 		}

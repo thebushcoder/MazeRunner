@@ -24,70 +24,50 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 		for(auto e : getEntities()){
 			MovementComponent& s = e.getComponent<MovementComponent>();
 			JumpComponent& j = e.getComponent<JumpComponent>();
-			RopeComponent& r = e.getComponent<RopeComponent>();
+			SpriteComponent& sprite = e.getComponent<SpriteComponent>();
+
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
+				e.getComponent<JetPackComponent>().isFired = true;
+			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
+				e.getComponent<JetPackComponent>().isFired = false;
+			}
 
 			// MOVE LEFT
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
 				s.currentAcc.x = -s.getMaxAcc();
+				if(sprite.isSpriteFlipped()){
+					sprite.flipSpriteLeft();
+				}
 			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
 					s.currentAcc.x < 0){
 				s.currentAcc.x = 0;
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					ropeD.swingVel = 0;
-				}
 			}
 			// MOVE RIGHT
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
 				s.currentAcc.x = s.getMaxAcc();
+				if(!sprite.isSpriteFlipped()){
+					sprite.flipSpriteRight();
+				}
 			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::D) &&
 					s.currentAcc.x > 0){
 				s.currentAcc.x = 0;
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					ropeD.swingVel = 0;
-				}
 			}
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					ropeD.reelVel = ropeD.getReelSpeed();
-				}
+
 			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					if(ropeD.reelVel > 0){
-						ropeD.reelVel = 0;
-					}
-				}
+
 			}
 
 			// JUMP
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) ||
 					sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-//				if(r.isFired){
-//					r.isFired = false;
-//					if(r.rope.isValid()){
-//						r.rope.kill();
-//					}
-//				}
-
 				// DO NOTHING - prevents bunny hopping/pogo sticking
 				if(j.jPressed){
 					return;
 				}
 
-				bool onRope = false;
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					onRope = ropeD.isAnchored;
-				}
-
-				if(onRope){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					ropeD.reelVel = -ropeD.getReelSpeed();
-				}else if(!j.inAir && !j.jumping){
+				if(!j.inAir && !j.jumping){
 					// REGULAR JUMP
 					j.toggleJump(true);
 					j.jPressed = true;
@@ -110,43 +90,17 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 				if(j.jumping){
 					j.toggleJump(false);
 				}
-				if(r.rope.isValid()){
-					RopeDetailsComponent& ropeD = r.rope.getComponent<RopeDetailsComponent>();
-					if(ropeD.reelVel < 0){
-						ropeD.reelVel = 0;
-					}
-				}
 			}
 
 			// FIRE NINJA ROPE
 			if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-				if(!r.lButtonDown && !r.rope.isValid()){
-					r.isFired = true;
-					r.lButtonDown = true;
-					anax::Entity rope = factory->createEntity("ninjaRope");
-					RopeDetailsComponent& ropeD = rope.getComponent<RopeDetailsComponent>();
-					PositionComponent& p = e.getComponent<PositionComponent>();
-					ropeD.srcEntity = e;
-					ropeD.src = p.screenPosition;
-					ropeD.extEnd = p.screenPosition;
-					ropeD.currentLen = 0;
-					ropeD.isAnchored = false;
 
-					sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-					sf::Vector2f worldVec = window->mapPixelToCoords(mousePos, *(mapView));
+			}else if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 
-					ropeD.tgt = worldVec;
-					r.rope = rope;
-				}
-			}else if(!sf::Mouse::isButtonPressed(sf::Mouse::Left) && r.lButtonDown){
-				r.lButtonDown = false;
 			}
 
 			if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-				if(r.rope.isValid()){
-					r.isFired = false;
-					r.rope.kill();
-				}
+
 			}
 		}
 	}

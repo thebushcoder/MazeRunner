@@ -15,34 +15,10 @@ PlayerCollision::PlayerCollision(TileMap* map, GameScreen* s) :
 PlayerCollision::~PlayerCollision(){}
 
 void PlayerCollision::preCheck(anax::Entity entity){
-	// rope check
-	if(entity.hasComponent<RopeComponent>()){
-		anax::Entity rope = entity.getComponent<RopeComponent>().rope;
-		if(rope.isValid()){
-			ropeIsValid = true;
-			hasRopeAnchor = rope.getComponent<RopeDetailsComponent>().isAnchored;
-		}else{
-			ropeIsValid = false;
-			hasRopeAnchor = false;
-		}
-	}
+
 }
 void PlayerCollision::postCheck(anax::Entity entity){
 	BodyComponent& b = entity.getComponent<BodyComponent>();
-	// check rope length
-	if(hasRopeAnchor){
-		bool f = false;
-		for(auto c : b.collisionGrid){
-			if(c) f = true;	break;
-		}
-		if(!f){
-			anax::Entity rope = entity.getComponent<RopeComponent>().rope;
-			RopeDetailsComponent& r = rope.getComponent<RopeDetailsComponent>();
-			if(r.currentLen != r.tmpLen && r.tmpLen != 0){
-				r.currentLen = r.tmpLen;
-			}
-		}
-	}
 
 	// check if still on floor
 	if(!b.collisionGrid[DirectionEnum::Direction::SW] &&
@@ -159,13 +135,10 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 
 	// if collide w/ west wall and moving horizontally(not on rope) or swinging on rope
-	if(b.collisionGrid[DirectionEnum::Direction::W]  &&
-			((!ropeIsValid && s.currentVel.x < 0) || ropeIsValid)){
+	if(b.collisionGrid[DirectionEnum::Direction::W]  && s.currentVel.x < 0){
 
-		if(!ropeIsValid){
-			// stick to wall in air
-			stickToWall(j, s, sf::Keyboard::A, JumpComponent::LEFT);
-		}
+		// stick to wall in air
+		stickToWall(j, s, sf::Keyboard::A, JumpComponent::LEFT);
 
 		Tile* t = map->getTileLayer().getTile(tileX - 1, tileY).get();
 
@@ -174,13 +147,11 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 				body->getPosition().y);
 		s.currentVel.x = 0;
 	// if collide w/ east wall and moving horizontally(not on rope) or swinging on rope
-	}else if(b.collisionGrid[DirectionEnum::Direction::E] &&
-			((!ropeIsValid && s.currentVel.x > 0) || ropeIsValid)){
+	}else if(b.collisionGrid[DirectionEnum::Direction::E] && s.currentVel.x > 0){
 
-		if(!ropeIsValid){
-			// stick to wall in air
-			stickToWall(j, s, sf::Keyboard::D, JumpComponent::RIGHT);
-		}
+		// stick to wall in air
+		stickToWall(j, s, sf::Keyboard::D, JumpComponent::RIGHT);
+
 		Tile* t = map->getTileLayer().getTile(tileX + 1, tileY).get();
 
 		body->setPosition(t->getBody().getPosition().x - body->getGlobalBounds().width - 2,

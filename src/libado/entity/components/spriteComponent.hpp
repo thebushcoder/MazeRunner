@@ -23,6 +23,16 @@ struct SpriteComponent : anax::Component{
 	sf::Sprite* getSprite(){
 		return sprite.get();
 	}
+	void flipSpriteLeft(){
+		sprite->setScale(-1.0, 1.0);
+		sprite->setOrigin({sprite->getLocalBounds().width, 0});
+		spriteFlip = false;
+	}
+	void flipSpriteRight(){
+		sprite->setScale(1.0, 1.0);
+		sprite->setOrigin({0, 0});
+		spriteFlip = true;
+	}
 	sf::Texture* getTexture(){
 		return tex.get();
 	}
@@ -35,10 +45,15 @@ struct SpriteComponent : anax::Component{
 	bool hasShape(){
 		return tex.get() != nullptr;
 	}
+	bool isSpriteFlipped(){
+		return spriteFlip;
+	}
 private:
 	std::unique_ptr<sf::Texture> tex;
 	std::unique_ptr<sf::Shape> shape;
 	std::unique_ptr<sf::Sprite> sprite;
+
+	bool spriteFlip = false;
 };
 
 #endif /* LIBADO_ENTITY_COMPONENTS_SPRITECOMPONENT_HPP_ */

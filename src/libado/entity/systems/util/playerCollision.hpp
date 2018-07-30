@@ -31,7 +31,6 @@ public:
 private:
 	GameScreen* screen;
 	ParticleSystem* particleSys;
-	bool hasRopeAnchor = false, ropeIsValid = false;
 
 	void setRoofCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j,
 			MovementComponent& s){

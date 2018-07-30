@@ -7,16 +7,16 @@
 
 #include "livesWidget.hpp"
 
-LivesWidget::LivesWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW, float screenH) : player(p){
+LivesWidget::LivesWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW,
+		float screenH) : player(p){
 	LivesComponent& l = player.getComponent<LivesComponent>();
 	currentCount = l.getLivesCounter();
 
 	float w = 18, h = 24;
 	for(int i = 0; i < l.getLivesCounter(); ++i){
 		sf::RectangleShape rect(sf::Vector2f(w, h));
-		rect.setRotation(180);
 		rect.setFillColor(sf::Color::Red);
-		rect.setPosition((screenW * 0.656) + (w * 2.2) * i, h * 3.6);
+		rect.setPosition((screenW * 0.642) + (w * 2.2) * i, h * 2.8);
 		rect.setOutlineColor(sf::Color::White);
 		rect.setOutlineThickness(1);
 

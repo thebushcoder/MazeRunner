@@ -31,63 +31,50 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
 			SpriteComponent& s = entity.getComponent<SpriteComponent>();
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 
-			if(entity.hasComponent<RopeDetailsComponent>()){
-				m_renderWindow->draw(*s.getShape());
-			}else{
-				if(entity.hasComponent<AnimationComponent>() &&
-						entity.getComponent<AnimationComponent>().getCanGlow()){
-					sf::Shader* shader = entity.getComponent<AnimationComponent>().getGlowShader();
+			if(entity.hasComponent<AnimationComponent>() &&
+					entity.getComponent<AnimationComponent>().getCanGlow()){
+				sf::Shader* shader = entity.getComponent<AnimationComponent>().getGlowShader();
 
-					// set elapsed time for shader. Needed for timed(delta-like) operations
-					shader->setUniform("u_time", shaderClock.getElapsedTime().asSeconds());
+				// set elapsed time for shader. Needed for timed(delta-like) operations
+				shader->setUniform("u_time", shaderClock.getElapsedTime().asSeconds());
 
-					if(s.hasTexture()){
-						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getSprite()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getSprite(), shader);
-					}else{
-						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getShape()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getShape(), shader);
-					}
-				}else if(entity.hasComponent<InvulnerabilityComponent>()){
-					InvulnerabilityComponent& iC = entity.getComponent<InvulnerabilityComponent>();
-
-					sf::Shader* shader = &iC.getPulseShader();
-
-					// set elapsed time for shader. Needed for timed(delta-like) operations
-					shader->setUniform("u_time", iC.elapsed.asSeconds());
-
-					if(s.hasTexture()){
-						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getSprite()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getSprite(), shader);
-					}else{
-						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getShape()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getShape(), shader);
-					}
+				if(s.hasTexture()){
+					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getSprite()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getSprite(), shader);
 				}else{
-					if(s.hasTexture()){
-						s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getSprite()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getSprite());
-					}else{
-						s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-						s.getShape()->move(p.offsetPosition);
-						m_renderWindow->draw(*s.getShape());
-					}
+					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getShape()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getShape(), shader);
 				}
+			}else if(entity.hasComponent<InvulnerabilityComponent>()){
+				InvulnerabilityComponent& iC = entity.getComponent<InvulnerabilityComponent>();
 
+				sf::Shader* shader = &iC.getPulseShader();
+
+				// set elapsed time for shader. Needed for timed(delta-like) operations
+				shader->setUniform("u_time", iC.elapsed.asSeconds());
+
+				if(s.hasTexture()){
+					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getSprite()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getSprite(), shader);
+				}else{
+					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getShape()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getShape(), shader);
+				}
+			}else{
+				if(s.hasTexture()){
+					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getSprite()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getSprite());
+				}else{
+					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+					s.getShape()->move(p.offsetPosition);
+					m_renderWindow->draw(*s.getShape());
+				}
 			}
-
-//			if(entity.hasComponent<CheckpointComponent>()){
-//				BodyComponent& b = entity.getComponent<BodyComponent>();
-//
-//				b.getShape("main")->setPosition(p.screenPosition.x, p.screenPosition.y);
-//				b.getShape("main")->setFillColor(sf::Color::Magenta);
-//				m_renderWindow->draw(*b.getShape("main"));
-//			}
 		}
     }
 

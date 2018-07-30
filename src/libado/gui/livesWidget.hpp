@@ -12,7 +12,6 @@
 #include "../map/tileMap.hpp"
 #include "../entity/components/componentsCollection.hpp"
 
-class GameScreen;
 class LivesWidget : public tgui::Panel{
 public:
 	typedef std::shared_ptr<LivesWidget> Ptr; ///< Shared widget pointer

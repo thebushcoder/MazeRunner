@@ -15,7 +15,7 @@ CheckpointWidget::CheckpointWidget(tgui::Theme::Ptr theme, GameScreen* s, float 
 		sf::CircleShape cp(rad, 3);
 		cp.setRotation(180);
 		cp.setFillColor(sf::Color::Transparent);
-		cp.setPosition((screenW * 0.66) + (rad * 2.8) * i, rad * 2.5);
+		cp.setPosition((screenW * 0.66) + (rad * 2.8) * i, rad * 2.8);
 		cp.setOutlineColor(sf::Color::White);
 		cp.setOutlineThickness(1);
 
