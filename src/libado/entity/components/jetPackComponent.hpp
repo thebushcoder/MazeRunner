@@ -11,7 +11,7 @@
 #include <SFML/Graphics.hpp>
 
 struct JetPackComponent : anax::Component{
-	bool isFired = false;
+	bool isFired = false, fireTurbo = false;
 	sf::Vector2f vel;
 	sf::Vector2f dir;
 
@@ -19,6 +19,7 @@ struct JetPackComponent : anax::Component{
 		flySpeed = jsonData["flyS"].GetFloat();
 		regenSpeed = jsonData["regen"].GetFloat();
 		turboCharges = jsonData["turbo"].GetInt();
+		maxTurbo = jsonData["maxTurbo"].GetInt();
 	}
 
 	void setXVec(float s){
@@ -55,12 +56,15 @@ struct JetPackComponent : anax::Component{
 	void setTurboCharges(int turboCharges) {
 		this->turboCharges = turboCharges;
 	}
-
+	int getMaxTurboCharges(){
+		return maxTurbo;
+	}
 private:
 	float charge = 1.0;
 	float flySpeed;
 	float regenSpeed;
 	int turboCharges;
+	int maxTurbo;
 };
 
 #endif /* LIBADO_ENTITY_COMPONENTS_JETPACKCOMPONENT_HPP_ */

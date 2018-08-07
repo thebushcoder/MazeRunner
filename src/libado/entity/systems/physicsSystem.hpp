@@ -29,6 +29,8 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
     /// Updates the MovementSystem
     /// \param deltaTime The change in time
     void update(sf::Time& delta){
+    	debug.restart();
+
     	for (auto entity : getEntities()){
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 			MovementComponent& s = entity.getComponent<MovementComponent>();
@@ -48,6 +50,9 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 				body->setPosition(p.screenPosition.x, p.screenPosition.y);
 
 				if(jet.isFired && jet.getCharge() > 0.0){
+					// remove gravity effects
+					s.currentVel.y = 0;
+
 					body->move(jet.vel.x * jet.dir.x, jet.vel.y * jet.dir.y);
 				}else{
 					// move player
@@ -72,10 +77,13 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 
 			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
 		}
+//    	printf("PhysicsSystem > debugTime: %f\n", debug.restart().asSeconds());
     }
 
 private:
     TileMap* map;
+
+    sf::Clock debug;
 
     void updatePlayer(anax::Entity entity, sf::Time& delta){
 		MovementComponent& s = entity.getComponent<MovementComponent>();

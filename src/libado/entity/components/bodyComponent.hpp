@@ -18,8 +18,6 @@ struct BodyComponent : anax::Component{
 	 */
 	std::vector<bool> collisionGrid;
 
-	bool swingCollision = false;
-
 	BodyComponent(){
 		initGrid();
 	}

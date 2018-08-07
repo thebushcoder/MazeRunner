@@ -16,14 +16,20 @@
 #include "../components/componentsCollection.hpp"
 #include "../entityFactory.hpp"
 
+/*
+ * POSSIBLE BUG WITH PARTICLE SPEED / FORCE
+ */
 struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 	ParticleSystem(EntityFactory* f) : factory(f){
 		std::random_device rd;
 		gen = std::mt19937_64(rd());
 		normDist = std::uniform_real_distribution<>(-1.0, 1.0);
+		normDist = std::uniform_real_distribution<>(-0.08, 0.08);
 	}
 
 	void update(sf::Time& delta){
+		debug.restart();
+
 		for(auto e : getEntities()){
 			PositionComponent& pos = e.getComponent<PositionComponent>();
 			ParticleComponent& particle = e.getComponent<ParticleComponent>();
@@ -40,8 +46,17 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 			particle.currentTime += delta;
 			if(particle.currentTime.asSeconds() >= particle.getMaxTime()){
 				e.kill();
+				continue;
+			}
+
+			if(e.hasComponent<ShaderComponent>()){
+				ShaderComponent& shade = e.getComponent<ShaderComponent>();
+
+				shade.getShader().setUniform("elapsedTime", particle.currentTime.asSeconds());
 			}
 		}
+
+//		printf("ParticleSystem > debugTime: %f\n", debug.restart().asSeconds());
 	}
 
 	void createExplosion(int numParticle, sf::Vector2f center){
@@ -58,11 +73,39 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 		}
 	}
 
+	void createJetStream(int numParticle, anax::Entity player){
+		for(int i = 0; i < numParticle; ++i){
+			anax::Entity e = factory->createEntity("jetParticle");
+
+			PositionComponent& pos = e.getComponent<PositionComponent>();
+			ParticleComponent& particle = e.getComponent<ParticleComponent>();
+			ShaderComponent& shade = e.getComponent<ShaderComponent>();
+			SpriteComponent& s = e.getComponent<SpriteComponent>();
+			shade.getShader().setUniform("tex", *s.getTexture());
+
+			PositionComponent& playerPos = player.getComponent<PositionComponent>();
+			BodyComponent& b = player.getComponent<BodyComponent>();
+			JetPackComponent& j = player.getComponent<JetPackComponent>();
+
+			pos.screenPosition.x = playerPos.screenPosition.x +
+					b.getShape("main")->getGlobalBounds().width * 0.5;
+			pos.screenPosition.y = playerPos.screenPosition.y +
+					b.getShape("main")->getGlobalBounds().height * 0.9;
+
+			//	set particle move direction
+			particle.setDirection(sf::Vector2f(-(j.dir.x + normVaryDist(gen)),
+					-(j.dir.y + normVaryDist(gen))));
+		}
+	}
+
 private:
 	EntityFactory* factory;
 
 	std::mt19937_64 gen;
 	std::uniform_real_distribution<> normDist;
+	std::uniform_real_distribution<> normVaryDist;
+
+	sf::Clock debug;
 };
 
 

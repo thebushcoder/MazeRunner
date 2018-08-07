@@ -40,8 +40,8 @@ anax::Entity EntityFactory::createEntity(std::string name){
 
 	float randSize = 0;
 	if(profile.HasMember("randSize")){
-		std::uniform_int_distribution<> sizeDist(profile["randSize"].GetArray()[0].GetInt(),
-				profile["randSize"].GetArray()[1].GetInt());
+		std::uniform_real_distribution<> sizeDist(profile["randSize"].GetArray()[0].GetFloat(),
+				profile["randSize"].GetArray()[1].GetFloat());
 		randSize = sizeDist(gen);
 	}
 
@@ -62,6 +62,9 @@ anax::Entity EntityFactory::createEntity(std::string name){
 					if(i.HasMember("off")){
 						s.getSprite()->setOrigin(i["off"].GetArray()[0].GetInt(),
 								i["off"].GetArray()[1].GetInt());
+					}
+					if(randSize != 0){
+						s.getSprite()->setScale(randSize, randSize);
 					}
 
 				}else if(i.HasMember("line")){
@@ -185,6 +188,9 @@ anax::Entity EntityFactory::createEntity(std::string name){
 		}
 		if(strcmp(itr->name.GetString(), "animation") == 0){
 			e.addComponent<AnimationComponent>(itr->value);
+		}
+		if(strcmp(itr->name.GetString(), "shader") == 0){
+			e.addComponent<ShaderComponent>(itr->value, nullptr);
 		}
 		if(strcmp(itr->name.GetString(), "particle") == 0){
 			e.addComponent<ParticleComponent>(itr->value);

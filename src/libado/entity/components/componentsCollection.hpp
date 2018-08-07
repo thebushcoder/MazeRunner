@@ -22,6 +22,7 @@
 #include "livesComponent.hpp"
 #include "invulnerabilityComponent.hpp"
 #include "jetPackComponent.hpp"
+#include "shaderComponent.hpp"
 
 #endif /* LIBADO_ENTITY_COMPONENTS_COMPONENTSCOLLECTION_HPP_ */
 

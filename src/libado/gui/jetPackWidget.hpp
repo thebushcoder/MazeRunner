@@ -27,10 +27,11 @@ protected:
 private:
 	anax::Entity player;
 
-	sf::RectangleShape outline;
+	sf::RectangleShape chargeOutline;
 	sf::RectangleShape chargeBar;
+
+	int currentCount;
+	std::vector<sf::RectangleShape> turboWidgets;
 };
-
-
 
 #endif /* LIBADO_GUI_JETPACKWIDGET_HPP_ */

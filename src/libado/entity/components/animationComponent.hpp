@@ -33,18 +33,9 @@ struct AnimationComponent : anax::Component{
 	float getHoverSpeed() const {
 		return hoverSpeed;
 	}
-	bool getCanGlow() const {
-		return canGlow;
-	}
-	sf::Shader* getGlowShader(){
-		return &glowShader;
-	}
 private:
 	float hoverOffset, hoverSpeed;
 	int hoverDir = 1;
-
-	bool canGlow = false;
-	sf::Shader glowShader;
 };
 
 

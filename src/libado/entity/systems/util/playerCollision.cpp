@@ -57,7 +57,9 @@ void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider
 
 				SpriteComponent& s = entity.getComponent<SpriteComponent>();
 				entity.addComponent<InvulnerabilityComponent>(invulnTime);
-				entity.getComponent<InvulnerabilityComponent>().getPulseShader().setUniform("tex", *s.getTexture());
+
+				entity.addComponent<ShaderComponent>("bin/data/flash_shader",
+						s.getTexture()).getShader().setUniform("u_time", 0.0f);;
 
 				entity.activate();
 			}
@@ -132,13 +134,16 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	JumpComponent& j = entity.getComponent<JumpComponent>();
 	BodyComponent& b = entity.getComponent<BodyComponent>();
 	MovementComponent& s = entity.getComponent<MovementComponent>();
+	JetPackComponent& jet = entity.getComponent<JetPackComponent>();
 	sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 
 	// if collide w/ west wall and moving horizontally(not on rope) or swinging on rope
-	if(b.collisionGrid[DirectionEnum::Direction::W]  && s.currentVel.x < 0){
-
-		// stick to wall in air
-		stickToWall(j, s, sf::Keyboard::A, JumpComponent::LEFT);
+	if(b.collisionGrid[DirectionEnum::Direction::W] && (s.currentVel.x < 0 ||
+			jet.isFired)){
+		if(!jet.isFired){
+			// stick to wall in air
+			stickToWall(j, s, sf::Keyboard::A, JumpComponent::LEFT);
+		}
 
 		Tile* t = map->getTileLayer().getTile(tileX - 1, tileY).get();
 
@@ -147,10 +152,12 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 				body->getPosition().y);
 		s.currentVel.x = 0;
 	// if collide w/ east wall and moving horizontally(not on rope) or swinging on rope
-	}else if(b.collisionGrid[DirectionEnum::Direction::E] && s.currentVel.x > 0){
-
-		// stick to wall in air
-		stickToWall(j, s, sf::Keyboard::D, JumpComponent::RIGHT);
+	}else if(b.collisionGrid[DirectionEnum::Direction::E] && (s.currentVel.x > 0 ||
+			jet.isFired)){
+		if(!jet.isFired){
+			// stick to wall in air
+			stickToWall(j, s, sf::Keyboard::D, JumpComponent::RIGHT);
+		}
 
 		Tile* t = map->getTileLayer().getTile(tileX + 1, tileY).get();
 

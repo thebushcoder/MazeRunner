@@ -32,6 +32,8 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
     /// Updates the MovementSystem
     /// \param deltaTime The change in time
     void update(sf::Time& delta){
+    	debug.restart();
+
     	for (auto entity : getEntities()){
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 			BodyComponent& b = entity.getComponent<BodyComponent>();
@@ -93,12 +95,16 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 
 			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
     	}
+
+//    	printf("CollisionSystem > debugTime: %f\n", debug.restart().asSeconds());
     }
 
 private:
     TileMap* map;
 
     std::map<std::string, std::unique_ptr<CollisionModule>> modules;
+
+    sf::Clock debug;
 
     void checkEntityCollisions(int tileX, int tileY, anax::Entity e,  sf::Shape* body){
     	checkNeighbour(tileX, tileY + 1, e, body);

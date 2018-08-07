@@ -26,10 +26,18 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 			JumpComponent& j = e.getComponent<JumpComponent>();
 			SpriteComponent& sprite = e.getComponent<SpriteComponent>();
 
+			// FIRE JETPACK
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
 				e.getComponent<JetPackComponent>().isFired = true;
 			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
 				e.getComponent<JetPackComponent>().isFired = false;
+			}
+
+			// FIRE JETPACK TURBO
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
+				e.getComponent<JetPackComponent>().fireTurbo = true;
+			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
+				e.getComponent<JetPackComponent>().fireTurbo = false;
 			}
 
 			// MOVE LEFT
@@ -90,17 +98,6 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 				if(j.jumping){
 					j.toggleJump(false);
 				}
-			}
-
-			// FIRE NINJA ROPE
-			if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-
-			}else if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-
-			}
-
-			if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-
 			}
 		}
 	}

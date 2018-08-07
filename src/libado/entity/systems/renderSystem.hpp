@@ -22,60 +22,40 @@ struct RenderingSystem : anax::System<anax::Requires<SpriteComponent>>{
     /// \param renderTarget The render target you wish to render to
     RenderingSystem(sf::RenderWindow* window){
     	m_renderWindow = window;
-    	shaderClock.restart(); // start the timer
     }
 
     /// Renders the system
     void render(sf::Time& delta){
+    	debug.restart();
+
 		for (auto& entity : getEntities()) {
 			SpriteComponent& s = entity.getComponent<SpriteComponent>();
 			PositionComponent& p = entity.getComponent<PositionComponent>();
 
-			if(entity.hasComponent<AnimationComponent>() &&
-					entity.getComponent<AnimationComponent>().getCanGlow()){
-				sf::Shader* shader = entity.getComponent<AnimationComponent>().getGlowShader();
+			sf::Shader* shader = nullptr;
+			if(entity.hasComponent<ShaderComponent>()){
+				shader = &entity.getComponent<ShaderComponent>().getShader();
+			}
 
-				// set elapsed time for shader. Needed for timed(delta-like) operations
-				shader->setUniform("u_time", shaderClock.getElapsedTime().asSeconds());
-
-				if(s.hasTexture()){
-					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getSprite()->move(p.offsetPosition);
+			if(s.hasTexture()){
+				s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
+				s.getSprite()->move(p.offsetPosition);
+				if(shader){
 					m_renderWindow->draw(*s.getSprite(), shader);
 				}else{
-					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getShape()->move(p.offsetPosition);
-					m_renderWindow->draw(*s.getShape(), shader);
-				}
-			}else if(entity.hasComponent<InvulnerabilityComponent>()){
-				InvulnerabilityComponent& iC = entity.getComponent<InvulnerabilityComponent>();
-
-				sf::Shader* shader = &iC.getPulseShader();
-
-				// set elapsed time for shader. Needed for timed(delta-like) operations
-				shader->setUniform("u_time", iC.elapsed.asSeconds());
-
-				if(s.hasTexture()){
-					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getSprite()->move(p.offsetPosition);
-					m_renderWindow->draw(*s.getSprite(), shader);
-				}else{
-					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getShape()->move(p.offsetPosition);
-					m_renderWindow->draw(*s.getShape(), shader);
+					m_renderWindow->draw(*s.getSprite());
 				}
 			}else{
-				if(s.hasTexture()){
-					s.getSprite()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getSprite()->move(p.offsetPosition);
-					m_renderWindow->draw(*s.getSprite());
+				s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
+				s.getShape()->move(p.offsetPosition);
+				if(shader){
+					m_renderWindow->draw(*s.getShape(), shader);
 				}else{
-					s.getShape()->setPosition(p.screenPosition.x, p.screenPosition.y);
-					s.getShape()->move(p.offsetPosition);
 					m_renderWindow->draw(*s.getShape());
 				}
 			}
 		}
+//		printf("RenderingSystem > debugTime: %f\n", debug.restart().asSeconds());
     }
 
     /// Sets the render target
@@ -99,7 +79,7 @@ private:
     /// The render target to render to
     sf::RenderWindow* m_renderWindow;
 
-	sf::Clock shaderClock;
+    sf::Clock debug;
 };
 
 

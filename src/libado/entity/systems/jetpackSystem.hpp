@@ -18,6 +18,8 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 		particleSys(pSys), window(w), mapView(v){}
 
 	void update(sf::Time& delta){
+		debug.restart();
+
 		for(auto e : getEntities()){
 			JetPackComponent& j = e.getComponent<JetPackComponent>();
 			if(j.isFired){
@@ -26,13 +28,14 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 				regenCharge(j, delta);
 			}
 		}
+
+//		printf("JetPackSystem > debugTime: %f\n", debug.restart().asSeconds());
 	}
 
 	// regenerate "x" amt fuel per second
 	void regenCharge(JetPackComponent& j, sf::Time& delta){
 		if(j.getCharge() < 1.0){
 			j.addCharge(j.getRegenSpeed() * delta.asSeconds());
-			printf("Jetpack RE-charge: %f\n", j.getCharge());
 		}
 	}
 
@@ -40,7 +43,9 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 		if(j.getCharge() > 0.0){
 			// drain charge; consumption = 1/2 fly speed / sec
 			j.addCharge((j.getFlySpeed() * -0.16) * delta.asSeconds());
-			printf("Jetpack DRAIN-charge: %f\n", j.getCharge());
+
+			JumpComponent& jump = e.getComponent<JumpComponent>();
+			jump.inAir = true;
 
 			// thrust entity in mouse direction
 			sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
@@ -54,21 +59,33 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 			j.dir.x = lenX / magnitude;
 			j.dir.y = lenY / magnitude;
 
+			SpriteComponent& s = e.getComponent<SpriteComponent>();
+			if(j.dir.x > 0 && !s.isSpriteFlipped()){
+				s.flipSpriteRight();
+			}else if(j.dir.x < 0 && s.isSpriteFlipped()){
+				s.flipSpriteLeft();
+			}
+
 			j.setYVec(j.getFlySpeed() * delta.asSeconds());
 			j.setXVec(j.getFlySpeed() * delta.asSeconds());
 
 			// emit particles
-			// update widget - (pass player to widget and have it take care of updates(like livesWidget))
+			particleSys->createJetStream(2, e);
 		}else{
 			j.vel.x = j.vel.y = 0;
 		}
 	}
 
+	void turboThrust(anax::Entity e, sf::Time& delta){
+
+	}
+
 private:
 	ParticleSystem* particleSys;
-	//jetpack widget
 	sf::RenderWindow* window;
 	sf::View* mapView;
+
+	sf::Clock debug;
 };
 
 #endif /* LIBADO_ENTITY_SYSTEMS_JETPACKSYSTEM_HPP_ */

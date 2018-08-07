@@ -16,7 +16,9 @@
 #include "../components/componentsCollection.hpp"
 
 struct AnimationSystem : anax::System<anax::Requires<AnimationComponent>>{
-	AnimationSystem(){}
+	AnimationSystem(){
+		shaderClock.restart(); // start the timer
+	}
 
 	void update(sf::Time& delta){
 		for(auto e : getEntities()){
@@ -24,6 +26,11 @@ struct AnimationSystem : anax::System<anax::Requires<AnimationComponent>>{
 			AnimationComponent& a = e.getComponent<AnimationComponent>();
 
 			updateHover(delta, p, a);
+
+			if(e.hasComponent<ShaderComponent>()){
+				e.getComponent<ShaderComponent>().getShader().setUniform("u_time",
+						shaderClock.getElapsedTime().asSeconds());
+			}
 		}
 	}
 
@@ -39,6 +46,8 @@ struct AnimationSystem : anax::System<anax::Requires<AnimationComponent>>{
 		}
 	}
 
+private:
+	sf::Clock shaderClock;
 };
 
 #endif /* LIBADO_ENTITY_SYSTEMS_ANIMATIONSYSTEM_HPP_ */

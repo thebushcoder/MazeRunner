@@ -116,15 +116,20 @@ int GameScreen::run(){
 	}
 
 	sf::Clock deltaClock;
+	int frameCount = 0;
 	// run the program as long as the window is open
 	while(status == RUNNING){
 		sf::Time deltaTime = deltaClock.restart();
 
 		handleInput(deltaTime);
 
+//		printf("===========|Frame : %d|==========\n\n", frameCount++);
+
 		update(deltaTime);
 
 		render(deltaTime);
+
+//		printf("\n======================\n");
 	}
 
 	return QUIT;

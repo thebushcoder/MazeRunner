@@ -35,11 +35,15 @@ struct ParticleComponent : anax::Component{
 	void setVelX(float v){
 		if(vel.x + v <= force){
 			vel.x += v;
+		}else{
+			vel.x = force;
 		}
 	}
 	void setVelY(float v){
 		if(vel.y + v <= force){
 			vel.y += v;
+		}else{
+			vel.y = force;
 		}
 	}
 	sf::Vector2f& getVel(){
