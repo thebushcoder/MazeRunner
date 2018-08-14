@@ -49,7 +49,7 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 
 				body->setPosition(p.screenPosition.x, p.screenPosition.y);
 
-				if(jet.isFired && jet.getCharge() > 0.0){
+				if(jet.vel.x != 0 || jet.vel.y != 0){
 					// remove gravity effects
 					s.currentVel.y = 0;
 

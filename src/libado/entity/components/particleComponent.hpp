@@ -49,6 +49,9 @@ struct ParticleComponent : anax::Component{
 	sf::Vector2f& getVel(){
 		return vel;
 	}
+	void setForce(float f){
+		force = f;
+	}
 private:
 	float maxTime, force;
 	sf::Vector2f direction, vel;

@@ -1,0 +1,17 @@
+uniform vec4 u_minColor;
+uniform vec4 u_maxColor;
+uniform vec3 u_baseColor;
+uniform float elapsedTime;
+uniform float maxTime;	// 100%
+uniform sampler2D tex;
+
+void main(){
+	float cDiff = u_maxColor.r - u_minColor.r;
+	cDiff = cDiff / maxTime;
+	float aDiff = u_minColor.a - u_maxColor.a;
+	aDiff = aDiff / maxTime;
+
+	vec4 color = texture2D ( tex, gl_TexCoord[0].xy);
+	gl_FragColor = vec4(u_baseColor,
+			color.a - (u_minColor.a - (aDiff * elapsedTime)));
+}

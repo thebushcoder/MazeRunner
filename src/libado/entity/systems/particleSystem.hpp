@@ -24,7 +24,9 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 		std::random_device rd;
 		gen = std::mt19937_64(rd());
 		normDist = std::uniform_real_distribution<>(-1.0, 1.0);
-		normDist = std::uniform_real_distribution<>(-0.08, 0.08);
+		normVaryDist = std::uniform_real_distribution<>(-0.8, 0.8);
+		turboVaryDist = std::uniform_real_distribution<>(-1.2, 1.2);
+		colourDist = std::uniform_int_distribution<>(0, 1);
 	}
 
 	void update(sf::Time& delta){
@@ -75,6 +77,7 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 
 	void createJetStream(int numParticle, anax::Entity player){
 		for(int i = 0; i < numParticle; ++i){
+			//	create particle entity + set shader texture
 			anax::Entity e = factory->createEntity("jetParticle");
 
 			PositionComponent& pos = e.getComponent<PositionComponent>();
@@ -83,6 +86,7 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 			SpriteComponent& s = e.getComponent<SpriteComponent>();
 			shade.getShader().setUniform("tex", *s.getTexture());
 
+			//	set particle's start position to player position
 			PositionComponent& playerPos = player.getComponent<PositionComponent>();
 			BodyComponent& b = player.getComponent<BodyComponent>();
 			JetPackComponent& j = player.getComponent<JetPackComponent>();
@@ -92,9 +96,40 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 			pos.screenPosition.y = playerPos.screenPosition.y +
 					b.getShape("main")->getGlobalBounds().height * 0.9;
 
-			//	set particle move direction
+			//	set particle move direction(normalized dir)
 			particle.setDirection(sf::Vector2f(-(j.dir.x + normVaryDist(gen)),
 					-(j.dir.y + normVaryDist(gen))));
+		}
+	}
+
+	void createTurboStream(int numParticle, anax::Entity player){
+		for(int i = 0; i < numParticle; ++i){
+			//	create particle entity + set shader texture
+			anax::Entity e = factory->createEntity("turboParticle");
+
+			PositionComponent& pos = e.getComponent<PositionComponent>();
+			ParticleComponent& particle = e.getComponent<ParticleComponent>();
+			ShaderComponent& shade = e.getComponent<ShaderComponent>();
+			SpriteComponent& s = e.getComponent<SpriteComponent>();
+			shade.getShader().setUniform("tex", *s.getTexture());
+
+			// set random base colour
+			shade.getShader().setUniform("u_baseColor",
+					sf::Glsl::Vec3(colourDist(gen),colourDist(gen),colourDist(gen)));
+
+			//	set particle's start position to player position
+			PositionComponent& playerPos = player.getComponent<PositionComponent>();
+			BodyComponent& b = player.getComponent<BodyComponent>();
+			JetPackComponent& j = player.getComponent<JetPackComponent>();
+
+			pos.screenPosition.x = playerPos.screenPosition.x +
+					b.getShape("main")->getGlobalBounds().width * 0.5;
+			pos.screenPosition.y = playerPos.screenPosition.y +
+					b.getShape("main")->getGlobalBounds().height * 0.9;
+
+			//	set particle move direction(normalized dir)
+			particle.setDirection(sf::Vector2f(-(j.dir.x + turboVaryDist(gen)),
+					-(j.dir.y + turboVaryDist(gen))));
 		}
 	}
 
@@ -104,6 +139,8 @@ private:
 	std::mt19937_64 gen;
 	std::uniform_real_distribution<> normDist;
 	std::uniform_real_distribution<> normVaryDist;
+	std::uniform_real_distribution<> turboVaryDist;
+	std::uniform_int_distribution<> colourDist;
 
 	sf::Clock debug;
 };

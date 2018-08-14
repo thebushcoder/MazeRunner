@@ -102,8 +102,11 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 }
 void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 	JumpComponent& j = entity.getComponent<JumpComponent>();
+	JetPackComponent& jet = entity.getComponent<JetPackComponent>();
+
 	if(j.inAir){
-		if(!j.jumping){
+		// if not jumping and jet is not firing into the ground
+		if(!j.jumping && !(jet.isFired && jet.dir.y < 0.0)){
 			BodyComponent& b = entity.getComponent<BodyComponent>();
 			MovementComponent& s = entity.getComponent<MovementComponent>();
 			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");

@@ -25,19 +25,24 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 			MovementComponent& s = e.getComponent<MovementComponent>();
 			JumpComponent& j = e.getComponent<JumpComponent>();
 			SpriteComponent& sprite = e.getComponent<SpriteComponent>();
+			JetPackComponent& jet = e.getComponent<JetPackComponent>();
 
 			// FIRE JETPACK
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
 				e.getComponent<JetPackComponent>().isFired = true;
-			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
-				e.getComponent<JetPackComponent>().isFired = false;
+			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) &&
+					jet.isFired && !jet.fireTurbo){
+//				e.getComponent<JetPackComponent>().isFired = false;
+				e.getComponent<JetPackComponent>().resetJetpack();
 			}
 
 			// FIRE JETPACK TURBO
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
 				e.getComponent<JetPackComponent>().fireTurbo = true;
-			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
+			}else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) &&
+					jet.fireTurbo){
 				e.getComponent<JetPackComponent>().fireTurbo = false;
+				e.getComponent<JetPackComponent>().resetJetpack();
 			}
 
 			// MOVE LEFT

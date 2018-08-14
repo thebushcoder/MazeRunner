@@ -11,26 +11,52 @@
 #include <SFML/Graphics.hpp>
 
 struct JetPackComponent : anax::Component{
-	bool isFired = false, fireTurbo = false;
+	bool isFired = false, initTurbo = false, fireTurbo = false;
 	sf::Vector2f vel;
 	sf::Vector2f dir;
 
 	JetPackComponent(rapidjson::Value& jsonData){
 		flySpeed = jsonData["flyS"].GetFloat();
 		regenSpeed = jsonData["regen"].GetFloat();
-		turboCharges = jsonData["turbo"].GetInt();
-		maxTurbo = jsonData["maxTurbo"].GetInt();
+		normFuel = jsonData["fuel"].GetFloat();
+
+		maxTurbo = jsonData["turbo"]["maxTurbo"].GetInt();
+		turboCharges = jsonData["turbo"]["charges"].GetInt();
+		turboMulti = jsonData["turbo"]["multi"].GetFloat();
+		turboFuel = jsonData["turbo"]["fuel"].GetFloat();
 	}
 
-	void setXVec(float s){
+	void setXVel(float s){
 		if(std::abs(vel.x + s) < flySpeed){
 			vel.x += s;
 		}
 	}
-	void setYVec(float s){
+	void setYVel(float s){
 		if(std::abs(vel.y + s) < flySpeed){
 			vel.y += s;
 		}
+	}
+	void setXTurboVel(float s){
+		float absVel = std::abs(vel.x + s);
+		if(absVel < flySpeed * turboMulti){
+			vel.x += s;
+		}else if(absVel >= flySpeed * turboMulti){
+			vel.x = flySpeed * turboMulti;
+		}
+	}
+	void setYTurboVel(float s){
+		float absVel = std::abs(vel.y + s);
+		if(absVel < flySpeed * turboMulti){
+			vel.y += s;
+		}else if(absVel >= flySpeed * turboMulti){
+			vel.y = flySpeed * turboMulti;
+		}
+	}
+
+	void resetJetpack(){
+		initTurbo = false;
+		vel.x = vel.y = 0;
+		isFired = false;
 	}
 
 	float getCharge() const {
@@ -59,9 +85,24 @@ struct JetPackComponent : anax::Component{
 	int getMaxTurboCharges(){
 		return maxTurbo;
 	}
+	const float getTurboMulti() const{
+		return turboMulti;
+	}
+	int getMaxTurbo() const {
+		return maxTurbo;
+	}
+	float getNormFuel() const {
+		return normFuel;
+	}
+	float getTurboFuel() const {
+		return turboFuel;
+	}
+
 private:
+	float turboMulti;
 	float charge = 1.0;
 	float flySpeed;
+	float normFuel, turboFuel;
 	float regenSpeed;
 	int turboCharges;
 	int maxTurbo;
