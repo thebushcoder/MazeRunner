@@ -32,6 +32,13 @@ private:
 	GameScreen* screen;
 	ParticleSystem* particleSys;
 
+	void destroyTile(int tileX, int tileY, JetPackComponent& jet){
+		map->getTileLayer().deleteTile(tileX, tileY);
+		particleSys->createExplosion(12,
+				sf::Vector2f((tileX * TILESIZE) + TILESIZE / 2,
+						(tileY * TILESIZE) + TILESIZE / 2));
+	}
+
 	void setRoofCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j,
 			MovementComponent& s){
 		body->setPosition(bodyX, bodyY);

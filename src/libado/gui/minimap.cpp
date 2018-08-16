@@ -8,17 +8,17 @@
 #include "minimap.hpp"
 #include "../../gameScreen.hpp"
 
-MiniMap::MiniMap(tgui::Theme::Ptr theme, GameScreen* screen) :
+MiniMap::MiniMap(GameScreen* screen) :
 	world(screen->getEntityFactory()->world), map(screen->getTileMap()){
 
-	setBackgroundColor(tgui::Color(0, 0, 204, 198));
+	getRenderer()->setBackgroundColor(tgui::Color(0, 0, 204, 198));
 }
 
 void MiniMap::init(sf::RenderWindow* w){
 	setSize(8 + map->getWidth() * 2, 8 + map->getHeight() * 2);
 	setPosition(w->getSize().x - getSize().x , 0);
 
-    canvas = std::make_shared<tgui::Canvas>(map->getWidth() * 2, map->getHeight() * 2);
+    canvas = std::make_shared<tgui::Canvas>(tgui::Layout2d{map->getWidth() * 2, map->getHeight() * 2});
     add(canvas, "map_canvas");
     canvas->setPosition(4, 4);
 }

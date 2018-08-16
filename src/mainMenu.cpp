@@ -21,8 +21,8 @@ void MainMenu::createMainControls(){
 			manager->getWindow()->getSize().y * 0.4));
 	mainLayout->setPosition(windowWidth * 0.35,	windowHeight * 0.3);
 
-	tgui::Button::Ptr button = manager->getTheme()->load("Button");
-	button->setText("Start");
+	tgui::Button::Ptr button = tgui::Button::create("Start");
+	button->setRenderer(manager->getTheme().getRenderer("Button"));
 
 	button->connect("pressed", [this]{
 		status = QUIT;
@@ -37,8 +37,8 @@ void MainMenu::createMainControls(){
 	mainLayout->add(button);
 	mainLayout->addSpace(0.2f);
 
-	button = manager->getTheme()->load("Button");
-	button->setText("Editor");
+	button = tgui::Button::create("Editor");
+	button->setRenderer(manager->getTheme().getRenderer("Button"));
 
 	button->connect("pressed", [this]{
 //		status = QUIT;
@@ -50,8 +50,8 @@ void MainMenu::createMainControls(){
 	mainLayout->add(button);
 	mainLayout->addSpace(0.2f);
 
-	button = manager->getTheme()->load("Button");
-	button->setText("Options");
+	button = tgui::Button::create("Options");
+	button->setRenderer(manager->getTheme().getRenderer("Button"));
 	button->connect("pressed", [this]{
 //		status = QUIT;
 //		Screen* s = new VoronoiScreen();
@@ -62,8 +62,8 @@ void MainMenu::createMainControls(){
 	mainLayout->add(button);
 	mainLayout->addSpace(0.2f);
 
-	button = manager->getTheme()->load("Button");
-	button->setText("Exit");
+	button = tgui::Button::create("Exit");
+	button->setRenderer(manager->getTheme().getRenderer("Button"));
 	// Add the Button to the Box
 	mainLayout->add(button);
 	button->connect("pressed", [this]{

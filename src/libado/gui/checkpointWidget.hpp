@@ -17,7 +17,7 @@ public:
 	typedef std::shared_ptr<CheckpointWidget> Ptr; ///< Shared widget pointer
 	typedef std::shared_ptr<const CheckpointWidget> ConstPtr;
 
-	CheckpointWidget(tgui::Theme::Ptr theme, GameScreen* s, float screenW, float screenH, int num);
+	CheckpointWidget(GameScreen* s, float screenW, float screenH, int num);
 
 	void init(sf::RenderWindow* w);
 

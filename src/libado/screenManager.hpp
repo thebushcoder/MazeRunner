@@ -17,8 +17,6 @@
 #include <TGUI/TGUI.hpp>
 
 #include "screen.hpp"
-#include "gui/spriteButton.hpp"
-#include "gui/toggleButton.hpp"
 
 class ScreenManager{
 public:
@@ -33,9 +31,6 @@ public:
 		gui->getContainer()->setName("GUI_container");
 
 		theme = std::make_shared<tgui::Theme>("bin/imgs/Black.txt");
-		theme->setConstructFunction("SpriteButton", std::make_shared<SpriteButton>);
-		theme->setConstructFunction("CustomTooltip", std::make_shared<tgui::Label>);
-		theme->setConstructFunction("ToggleButton", std::make_shared<tgui::ToggleButton>);
 	}
 	~ScreenManager(){}
 
@@ -73,8 +68,8 @@ public:
 			}
 		}
 	}
-	tgui::Theme::Ptr getTheme(){
-		return theme;
+	tgui::Theme& getTheme(){
+		return *theme.get();
 	}
 	tgui::Gui* getGui(){
 		return gui.get();
@@ -89,7 +84,7 @@ protected:
 	sf::RenderWindow* window;
 
 	std::shared_ptr<sf::Font> font;
-	tgui::Theme::Ptr theme;
+	std::shared_ptr<tgui::Theme> theme;
 
 	std::shared_ptr<tgui::Gui> gui;
 };

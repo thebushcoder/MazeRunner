@@ -17,7 +17,7 @@ public:
 	typedef std::shared_ptr<LivesWidget> Ptr; ///< Shared widget pointer
 	typedef std::shared_ptr<const LivesWidget> ConstPtr;
 
-	LivesWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW, float screenH);
+	LivesWidget(anax::Entity p, float screenW, float screenH);
 
 	void init(sf::RenderWindow* w);
 

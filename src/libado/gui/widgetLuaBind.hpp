@@ -42,10 +42,10 @@ namespace WidgetLuaBind{
 					w->setSize(w->getSize().x, y);
 				},
 				"moveX", [](tgui::Widget* w, float x){
-					w->move(x, 0);
+//					w->move(x, 0);
 				},
 				"moveY", [](tgui::Widget* w, float y){
-					w->move(0, y);
+//					w->move(0, y);
 				}
 		);
 		lua.new_usertype<tgui::Container>("Container",

@@ -64,21 +64,21 @@ void GameScreen::init(){
 	auto windowWidth = tgui::bindWidth(*manager->getGui());
 	auto windowHeight = tgui::bindHeight(*manager->getGui());
 
-	auto minimap = std::make_shared<MiniMap>(manager->getTheme(), this);
+	auto minimap = std::make_shared<MiniMap>(this);
 	minimap->init(manager->getWindow());
 	manager->getGui()->add(minimap, "minimap");
 
-	auto cpWidget = std::make_shared<CheckpointWidget>(manager->getTheme(), this,
+	auto cpWidget = std::make_shared<CheckpointWidget>(this,
 			manager->getWindow()->getSize().x, manager->getWindow()->getSize().y,
 			numCheckpoints);
 	manager->getGui()->add(cpWidget, "cpWidget");
 
-	auto livesWidget = std::make_shared<LivesWidget>(manager->getTheme(),
+	auto livesWidget = std::make_shared<LivesWidget>(
 			entFactory->getPlayer(), manager->getWindow()->getSize().x,
 			manager->getWindow()->getSize().y);
 	manager->getGui()->add(livesWidget, "livesWidget");
 
-	auto jetPackWidget = std::make_shared<JetPackWidget>(manager->getTheme(),
+	auto jetPackWidget = std::make_shared<JetPackWidget>(
 			entFactory->getPlayer(), manager->getWindow()->getSize().x,
 			manager->getWindow()->getSize().y);
 	manager->getGui()->add(jetPackWidget, "jetPackWidget");

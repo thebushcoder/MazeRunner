@@ -18,7 +18,7 @@ public:
 	typedef std::shared_ptr<MiniMap> Ptr; ///< Shared widget pointer
 	typedef std::shared_ptr<const MiniMap> ConstPtr;
 
-	MiniMap(tgui::Theme::Ptr theme, GameScreen* screen);
+	MiniMap(GameScreen* screen);
 
 	void init(sf::RenderWindow* w);
 

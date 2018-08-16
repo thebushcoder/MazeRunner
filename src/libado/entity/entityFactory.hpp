@@ -9,6 +9,7 @@
 #define LIBADO_ENTITY_ENTITYFACTORY_HPP_
 
 #include <map>
+#include <random>
 #include <anax/World.hpp>
 
 #include "components/componentsCollection.hpp"

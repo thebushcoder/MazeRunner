@@ -7,8 +7,7 @@
 
 #include "jetPackWidget.hpp"
 
-JetPackWidget::JetPackWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW,
-		float screenH) : player(p){
+JetPackWidget::JetPackWidget(anax::Entity p, float screenW,	float screenH) : player(p){
 	float w = 102, h = 22;
 
 	chargeOutline = sf::RectangleShape(sf::Vector2f(w, h));

@@ -7,8 +7,7 @@
 
 #include "livesWidget.hpp"
 
-LivesWidget::LivesWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW,
-		float screenH) : player(p){
+LivesWidget::LivesWidget(anax::Entity p, float screenW,	float screenH) : player(p){
 	LivesComponent& l = player.getComponent<LivesComponent>();
 	currentCount = l.getLivesCounter();
 

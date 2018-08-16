@@ -14,7 +14,6 @@
 #include <memory>
 #include <iostream>
 
-#include <uuid/uuid.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <anax/World.hpp>

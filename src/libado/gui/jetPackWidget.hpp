@@ -17,7 +17,7 @@ public:
 	typedef std::shared_ptr<JetPackWidget> Ptr; ///< Shared widget pointer
 	typedef std::shared_ptr<const JetPackWidget> ConstPtr;
 
-	JetPackWidget(tgui::Theme::Ptr theme, anax::Entity p, float screenW, float screenH);
+	JetPackWidget(anax::Entity p, float screenW, float screenH);
 
 	void init(sf::RenderWindow* w){}
 
