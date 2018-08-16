@@ -12,6 +12,8 @@ void GameScreen::init(){
 	loadResources();
 	Screen::init();
 
+	//BUMP / TEST!
+
 	status = RUNNING;
 	entityWorld = std::make_shared<anax::World>();
 	renderSys = std::make_shared<RenderingSystem>(manager->getWindow());
