@@ -14,9 +14,8 @@ PlayerCollision::PlayerCollision(TileMap* map, GameScreen* s) :
 	particleSys(s->getParticleSystem()){}
 PlayerCollision::~PlayerCollision(){}
 
-void PlayerCollision::preCheck(anax::Entity entity){
+void PlayerCollision::preCheck(anax::Entity entity){}
 
-}
 void PlayerCollision::postCheck(anax::Entity entity){
 	BodyComponent& b = entity.getComponent<BodyComponent>();
 
@@ -32,7 +31,7 @@ void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider
 		int tileX, int tileY){
 	if(collider.hasComponent<CheckpointComponent>()){
 		// trigger entity collision
-		particleSys->createExplosion(16,
+		particleSys->createCPExplosion(16,
 				collider.getComponent<PositionComponent>().screenPosition
 		);
 
@@ -79,7 +78,7 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 
 			// tile top
 			if(b.collisionGrid[DirectionEnum::N]){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX, tileY - 1)){
 					destroyTile(tileX, tileY - 1, jet);
 				}else{
 					Tile* t = map->getTileLayer().getTile(tileX, tileY - 1).get();
@@ -94,7 +93,7 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 			if(b.collisionGrid[DirectionEnum::NW] &&
 					!b.collisionGrid[DirectionEnum::W] &&
 					(s.currentVel.y < 0 || jet.isFired)){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY - 1)){
 					destroyTile(tileX - 1, tileY - 1, jet);
 				}else{
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
@@ -105,7 +104,7 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 			if(b.collisionGrid[DirectionEnum::NE] &&
 					!b.collisionGrid[DirectionEnum::E] &&
 					(s.currentVel.y < 0 || jet.isFired)){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired&& !boundaryCheck(tileX + 1, tileY - 1)){
 					destroyTile(tileX + 1, tileY - 1, jet);
 				}else{
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
@@ -127,7 +126,7 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 			// tile down
 			if(b.collisionGrid[DirectionEnum::Direction::S]){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX, tileY + 1)){
 					destroyTile(tileX, tileY + 1, jet);
 				}else{
 					setFloorCollision(body->getPosition().x,
@@ -138,7 +137,7 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 			// tile down-left
 			if(b.collisionGrid[DirectionEnum::Direction::SW] &&
 					!b.collisionGrid[DirectionEnum::Direction::W]){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY + 1)){
 					destroyTile(tileX - 1, tileY + 1, jet);
 				}else{
 					setFloorCollision(body->getPosition().x,
@@ -149,7 +148,7 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 			// tile down-right
 			if(b.collisionGrid[DirectionEnum::Direction::SE] &&
 					!b.collisionGrid[DirectionEnum::Direction::E]){
-				if(jet.fireTurbo && jet.isFired){
+				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX + 1, tileY + 1)){
 					destroyTile(tileX + 1, tileY + 1, jet);
 				}else{
 					setFloorCollision(body->getPosition().x,
@@ -170,8 +169,8 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	// if collide w/ west wall and moving horizontally(not on rope) or swinging on rope
 	if(b.collisionGrid[DirectionEnum::Direction::W] && (s.currentVel.x < 0 ||
 			jet.isFired)){
-		if(jet.fireTurbo && jet.isFired){
-			destroyTile(tileX + 1, tileY, jet);
+		if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY)){
+			destroyTile(tileX - 1, tileY, jet);
 		}else{
 			if(!jet.isFired){
 				// stick to wall in air
@@ -188,7 +187,7 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	// if collide w/ east wall and moving horizontally(not on rope) or swinging on rope
 	}else if(b.collisionGrid[DirectionEnum::Direction::E] && (s.currentVel.x > 0 ||
 			jet.isFired)){
-		if(jet.fireTurbo && jet.isFired){
+		if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX + 1, tileY)){
 			destroyTile(tileX + 1, tileY, jet);
 		}else{
 			if(!jet.isFired){

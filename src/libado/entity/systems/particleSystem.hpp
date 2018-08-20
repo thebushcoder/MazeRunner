@@ -61,7 +61,7 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 //		printf("ParticleSystem > debugTime: %f\n", debug.restart().asSeconds());
 	}
 
-	void createExplosion(int numParticle, sf::Vector2f center){
+	void createCPExplosion(int numParticle, sf::Vector2f center){
 		for(int i = 0; i < numParticle; ++i){
 			anax::Entity e = factory->createEntity("cpParticle");
 
@@ -130,6 +130,22 @@ struct ParticleSystem : anax::System<anax::Requires<ParticleComponent>>{
 			//	set particle move direction(normalized dir)
 			particle.setDirection(sf::Vector2f(-(j.dir.x + turboVaryDist(gen)),
 					-(j.dir.y + turboVaryDist(gen))));
+		}
+	}
+
+	void createTileExplosion(int numParticle, sf::Vector2f center, float tileSize){
+		for(int i = 0; i < numParticle; ++i){
+			anax::Entity e = factory->createEntity("tileParticle");
+
+			PositionComponent& pos = e.getComponent<PositionComponent>();
+			ParticleComponent& particle = e.getComponent<ParticleComponent>();
+
+			center.x += (tileSize * normVaryDist(gen));
+			center.y += (tileSize * normVaryDist(gen));
+			pos.screenPosition = center;
+
+			//	set particle move direction
+			particle.setDirection(sf::Vector2f(normDist(gen), normDist(gen)));
 		}
 	}
 

@@ -104,7 +104,7 @@ void GameScreen::init(){
 
 		PositionComponent& p = entFactory->getPlayer().getComponent<PositionComponent>();
 
-		particleSys->createExplosion(12, p.screenPosition);
+		particleSys->createCPExplosion(12, p.screenPosition);
 
 		return true;
 	}));

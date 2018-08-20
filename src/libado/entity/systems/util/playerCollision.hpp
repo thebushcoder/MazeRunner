@@ -34,9 +34,9 @@ private:
 
 	void destroyTile(int tileX, int tileY, JetPackComponent& jet){
 		map->getTileLayer().deleteTile(tileX, tileY);
-		particleSys->createExplosion(12,
+		particleSys->createTileExplosion(12,
 				sf::Vector2f((tileX * TILESIZE) + TILESIZE / 2,
-						(tileY * TILESIZE) + TILESIZE / 2));
+						(tileY * TILESIZE) + TILESIZE / 2), TILESIZE / 2);
 	}
 
 	void setRoofCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j,
@@ -76,6 +76,13 @@ private:
 			//wall friction
 			s.currentVel.y *= 0.93;
 		}
+	}
+	bool boundaryCheck(int tileX, int tileY){
+		if(tileX <= 0 || tileY <= 0 || tileX >= map->getWidth() || tileY >= map->getHeight()){
+			printf("GOT HERE\n");
+			return true;
+		}
+		return false;
 	}
 };
 

@@ -67,6 +67,27 @@ anax::Entity EntityFactory::createEntity(std::string name){
 						s.getSprite()->setScale(randSize, randSize);
 					}
 
+				}else if(i.HasMember("rect")){
+					std::unique_ptr<sf::Shape> r = std::unique_ptr<sf::Shape>(new sf::RectangleShape());
+					if(randSize != 0){
+						((sf::RectangleShape*)r.get())->setSize(sf::Vector2f(
+								randSize,randSize));
+					}else{
+						((sf::RectangleShape*)r.get())->setSize(sf::Vector2f(
+								i["rect"]["w"].GetFloat(),
+								i["rect"]["h"].GetFloat()
+								));
+					}
+					r->setFillColor(sf::Color(
+							i["rect"]["c"][0].GetInt(),
+							i["rect"]["c"][1].GetInt(),
+							i["rect"]["c"][2].GetInt()
+							));
+					if(i["rect"].HasMember("p")){
+						r->setOrigin(i["rect"]["p"][0].GetFloat(),
+								i["rect"]["p"][1].GetFloat());
+					}
+					s.setShape(r);
 				}else if(i.HasMember("line")){
 					std::unique_ptr<sf::Shape> l = std::unique_ptr<sf::Shape>(
 							new sf::LineShape(sf::Vector2f(0,0), sf::Vector2f(0,0))
