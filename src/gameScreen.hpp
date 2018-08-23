@@ -34,6 +34,7 @@
 #include "libado/gui/livesWidget.hpp"
 #include "libado/gui/jetPackWidget.hpp"
 #include "libado/map/tileMap.hpp"
+#include "libado/map/mazeTileMap.hpp"
 #include "libado/util/mazeGen.hpp"
 #include "libado/entity/systems/renderSystem.hpp"
 #include "libado/entity/systems/physicsSystem.hpp"

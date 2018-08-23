@@ -22,30 +22,7 @@
 #include <rapidjson/stringbuffer.h>
 
 #include "../textureAtlas.hpp"
-
-#define TILESIZE 64
-
-class Tile{
-public:
-	enum Type{
-		SOLID,
-		DESTRUCTIBLE,
-		AIR
-	};
-
-	Tile() : body(std::move(std::unique_ptr<sf::RectangleShape>(nullptr))){}
-	Tile(int i, Type t, std::unique_ptr<sf::RectangleShape>& b);
-	Tile(Tile* t);
-
-	sf::RectangleShape& getBody();
-	int getId();
-	Type getType();
-	void setPosition(int x, int y);
-protected:
-	int id = 0;
-	Type type;
-	std::unique_ptr<sf::RectangleShape> body;
-};
+#include "tile.hpp"
 
 class TileFactory{
 public:

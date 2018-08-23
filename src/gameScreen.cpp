@@ -12,15 +12,14 @@ void GameScreen::init(){
 	loadResources();
 	Screen::init();
 
-	//BUMP / TEST!
-
 	status = RUNNING;
 	entityWorld = std::make_shared<anax::World>();
 	renderSys = std::make_shared<RenderingSystem>(manager->getWindow());
 	entityWorld->addSystem(*renderSys);
 	entFactory = std::make_shared<EntityFactory>("bin/data/entityData.json", entityWorld.get());
 
-	tileMap = std::make_shared<TileMap>(entFactory.get(), "bin/data/tileData.json", 162, 72);
+	tileMap = std::make_shared<MazeTileMap>(entFactory.get(), "bin/data/tileData.json", 162, 72);
+	tileMap->getTileLayer().addShader(Tile::Type::LAVA, "bin/data/lava_shader");
 
 	physicsSys = std::make_shared<PhysicsSystem>(tileMap.get());
 	entityWorld->addSystem(*physicsSys);
@@ -84,6 +83,12 @@ void GameScreen::init(){
 			entFactory->getPlayer(), manager->getWindow()->getSize().x,
 			manager->getWindow()->getSize().y);
 	manager->getGui()->add(jetPackWidget, "jetPackWidget");
+
+	/////////////////////////////////////////////////////////////
+
+	tileMap->getTileLayer().getShader(Tile::Type::LAVA)->setParameter("iResolution",
+			sf::Glsl::Vec3(manager->getWindow()->getSize().x,
+					manager->getWindow()->getSize().y, 0));
 
 	/////////////////////////////////////////////////////////////
 
@@ -154,6 +159,7 @@ void GameScreen::update(sf::Time& delta){
 	invulnerabilitySys->update(delta);
 	particleSys->update(delta);
 	animSys->update(delta);
+	tileMap->update(delta);
 
 	mapView->update();
 

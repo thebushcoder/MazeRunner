@@ -141,7 +141,7 @@ private:
     		std::function<void(DirectionEnum::Direction dir, BodyComponent& b)> func){
 		sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 		// tile down
-		if(tileY + 1 < map->getHeight() && map->getCost(tileX, tileY + 1) == Tile::Type::SOLID){
+		if(tileY + 1 < map->getHeight() && map->getCost(tileX, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::S, b);
@@ -149,7 +149,7 @@ private:
 		}
 		// tile down-left
 		if((tileY + 1 < map->getHeight() && tileX - 1 >= 0) &&
-				map->getCost(tileX - 1, tileY + 1) == Tile::Type::SOLID){
+				map->getCost(tileX - 1, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::SW, b);
@@ -157,28 +157,28 @@ private:
 		}
 		// tile down-right
 		if((tileY + 1 < map->getHeight() && tileX + 1 < map->getWidth()) &&
-				map->getCost(tileX + 1, tileY + 1) == Tile::Type::SOLID){
+				map->getCost(tileX + 1, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::SE, b);
 			}
 		}
 		// tile left
-		if(tileX - 1 >= 0 && map->getCost(tileX - 1, tileY) == Tile::Type::SOLID){
+		if(tileX - 1 >= 0 && map->getCost(tileX - 1, tileY) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::W, b);
 			}
 		}
 		// tile right
-		if(tileX + 1 >= 0 && map->getCost(tileX + 1, tileY) == Tile::Type::SOLID){
+		if(tileX + 1 >= 0 && map->getCost(tileX + 1, tileY) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::E, b);
 			}
 		}
 		// tile up
-		if(tileY - 1 >= 0 && map->getCost(tileX, tileY - 1) == Tile::Type::SOLID){
+		if(tileY - 1 >= 0 && map->getCost(tileX, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::N, b);
@@ -186,7 +186,7 @@ private:
 		}
 		// tile up-left
 		if((tileY - 1 >= 0 && tileX - 1 >= 0) &&
-				map->getCost(tileX - 1, tileY - 1) == Tile::Type::SOLID){
+				map->getCost(tileX - 1, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::NW, b);
@@ -194,7 +194,7 @@ private:
 		}
 		// tile up-right
 		if((tileY - 1 >= 0 && tileX + 1 < map->getWidth()) &&
-				map->getCost(tileX + 1, tileY - 1) == Tile::Type::SOLID){
+				map->getCost(tileX + 1, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::NE, b);

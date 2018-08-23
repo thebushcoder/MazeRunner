@@ -11,6 +11,7 @@
 #include <anax/Entity.hpp>
 #include "../../components/componentsCollection.hpp"
 #include "../../../map/tileMap.hpp"
+#include "../../../map/mazeTileMap.hpp"
 #include "../directionEnum.hpp"
 #include "collisionModule.hpp"
 
@@ -25,9 +26,6 @@ public:
 	void floorCollision(anax::Entity entity, int tileX, int tileY);
 	void wallCollision(anax::Entity entity, int tileX, int tileY);
 	void entityCollision(anax::Entity entity, anax::Entity collider, int tileX, int tileY);
-
-private:
-
 
 };
 

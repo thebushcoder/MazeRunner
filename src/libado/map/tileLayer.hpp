@@ -37,8 +37,14 @@ public:
 	void setTile(int x, int y, std::unique_ptr<Tile> t);
 	std::vector<Tile*> getNeighbours(float x, float y);
 	void deleteTile(int x, int y);
+	void addShader(Tile::Type t, std::string path);
+	sf::Shader* getShader(Tile::Type t){
+		return shaders[t].get();
+	}
 protected:
 	std::vector<std::vector<std::unique_ptr<Tile>> > map;
+
+	std::map<Tile::Type, std::shared_ptr<sf::Shader> > shaders;
 };
 
 #endif /* LIBADO_MAP_TILELAYER_HPP_ */

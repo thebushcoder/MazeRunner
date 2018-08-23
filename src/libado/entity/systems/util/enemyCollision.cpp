@@ -97,6 +97,8 @@ void EnemyCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 
 	body->setPosition(body->getPosition().x,
 			((tileY - 1) * TILESIZE) + TILESIZE);
+
+	((MazeTileMap*)map)->addLavaTile(map->getTileLayer().getTile(tileX, tileY - 1).get());
 }
 void EnemyCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 	MovementComponent& m = entity.getComponent<MovementComponent>();
@@ -110,6 +112,8 @@ void EnemyCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 
 	body->setPosition(body->getPosition().x,
 			((tileY + 1) * TILESIZE) - body->getGlobalBounds().height);
+
+	((MazeTileMap*)map)->addLavaTile(map->getTileLayer().getTile(tileX, tileY + 1).get());
 }
 void EnemyCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	MovementComponent& m = entity.getComponent<MovementComponent>();
@@ -119,11 +123,16 @@ void EnemyCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	if(b.collisionGrid[DirectionEnum::E] && m.currentAcc.x > 0){
 		// RIGHT
 		m.currentAcc.x = -m.currentAcc.x;
-		body->setPosition(((tileX + 1) * TILESIZE) - body->getGlobalBounds().width, body->getPosition().y);
+		body->setPosition(((tileX + 1) * TILESIZE) - body->getGlobalBounds().width,
+				body->getPosition().y);
+
+		((MazeTileMap*)map)->addLavaTile(map->getTileLayer().getTile(tileX + 1, tileY).get());
 	}else if(b.collisionGrid[DirectionEnum::W] && m.currentAcc.x < 0){
 		// LEFT
 		m.currentAcc.x = -m.currentAcc.x;
 		body->setPosition(((tileX - 1) * TILESIZE) + TILESIZE,
 				body->getPosition().y);
+
+		((MazeTileMap*)map)->addLavaTile(map->getTileLayer().getTile(tileX - 1, tileY).get());
 	}
 }

@@ -41,7 +41,7 @@ void MiniMap::update(sf::Time elapsedTime){
 		for(int y = 0; y < map->getHeight(); ++y){
 			Tile::Type t = map->getCost(x, y);
 
-			if(t == Tile::Type::SOLID){
+			if(t != Tile::Type::AIR){
 				int mX = (x == 0 ? x : x * 2);
 				int mY = (y == 0 ? y : y * 2);
 

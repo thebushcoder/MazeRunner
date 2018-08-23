@@ -18,6 +18,10 @@ TileLayer::TileLayer(int width, int height){
 		}
 	}
 }
+void TileLayer::addShader(Tile::Type t, std::string path){
+	shaders[t] = std::make_shared<sf::Shader>();
+	shaders[t]->loadFromFile(path + ".vs", path + ".fs");
+}
 void TileLayer::resize(int w, int h){
 	int wDiff = w - map.size();
 	int hDiff = h - map[0].size();
@@ -62,7 +66,17 @@ void TileLayer::render(sf::RenderWindow* window){
 			//RENDER TILE
 			if(!map[x][y]) continue;
 
-			window->draw(map[x][y]->getBody());
+			if(shaders.find(map[x][y]->getType()) != shaders.end()){
+				sf::Shader* s = shaders[map[x][y]->getType()].get();
+				if(map[x][y]->getType() == Tile::Type::LAVA){
+					s->setUniform("iTime", map[x][y]->timer.asSeconds());
+//					s->setUniform("tex", *map[x][y]->getBody().getTexture());
+				}
+				window->draw(map[x][y]->getBody(), s);
+//				printf("GOT HERE !!!!@@@@~!!! \n");
+			}else{
+				window->draw(map[x][y]->getBody());
+			}
 
 			//debug dots
 			sf::RectangleShape point;

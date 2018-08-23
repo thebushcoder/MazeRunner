@@ -39,6 +39,7 @@ public:
 	void save(std::string filePath);
 	void save(rapidjson::Document& json);
 	void load(rapidjson::Document& json);
+	virtual void update(sf::Time& delta){}
 	void render(sf::RenderWindow* window);
 	void resize(int w, int h);
 	int getWidth();
