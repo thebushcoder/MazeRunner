@@ -32,6 +32,8 @@ private:
 	GameScreen* screen;
 	ParticleSystem* particleSys;
 
+	void damagePlayer(anax::Entity entity);
+
 	void destroyTile(int tileX, int tileY, JetPackComponent& jet){
 		map->getTileLayer().deleteTile(tileX, tileY);
 		particleSys->createTileExplosion(12,

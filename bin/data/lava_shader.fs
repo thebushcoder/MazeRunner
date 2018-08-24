@@ -27,8 +27,8 @@ float noise(vec2 st) {
 
 void main()
 {
-    vec3 orange = vec3(1., .45, 0.);
-    vec3 yellow = vec3(1., 1., 0.);
+    vec3 green = vec3(0.0, .74, 0.);
+    vec3 tileBase = vec3(0.54, 0.39, 0.16);
     
 	vec2 uv = (2. * gl_FragCoord.xy - iResolution.xy) / iResolution.y;
 
@@ -40,8 +40,8 @@ void main()
         + smoothstep(.01,.2, noise(uv * 6. + .5))
         + smoothstep(.01,.3, noise(uv * 7. + .2));
 
-    orange.rg += .3 * sin(uv.y * 4. + iTime / 1.) * sin(uv.x * 5. + iTime / 1.);
+    green.rg += .3 * sin(uv.y * 4. + iTime / 1.) * sin(uv.x * 5. + iTime / 1.);
 
-    gl_FragColor.rgb = mix(yellow, orange, vec3(smoothstep(0., 1., col)));
+    gl_FragColor.rgb = mix(tileBase, green, vec3(smoothstep(0., 1., col)));
     gl_FragColor.a = 1.0;
 }

@@ -27,6 +27,33 @@ void PlayerCollision::postCheck(anax::Entity entity){
 		j.setInAir(true);
 	}
 }
+
+void PlayerCollision::damagePlayer(anax::Entity entity){
+	if(!entity.hasComponent<InvulnerabilityComponent>()){
+		LivesComponent& lC = entity.getComponent<LivesComponent>();
+		lC.decrementCounter(1);
+
+		if(lC.getLivesCounter() == 0){
+			screen->setStatus(QUIT);
+			MainMenu* s = new MainMenu();
+			s->setManager(screen->getManager());
+			screen->getManager()->setCurrentScreen(s);
+
+		}else{
+			float invulnTime = screen->getEntityFactory()->
+					getRawEntityData("player")["invuln"].GetFloat();
+
+			SpriteComponent& s = entity.getComponent<SpriteComponent>();
+			entity.addComponent<InvulnerabilityComponent>(invulnTime);
+
+			entity.addComponent<ShaderComponent>("bin/data/flash_shader",
+					s.getTexture()).getShader().setUniform("u_time", 0.0f);;
+
+			entity.activate();
+		}
+	}
+}
+
 void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider,
 		int tileX, int tileY){
 	if(collider.hasComponent<CheckpointComponent>()){
@@ -42,26 +69,7 @@ void PlayerCollision::entityCollision(anax::Entity entity, anax::Entity collider
 
 	if(collider.hasComponent<EnemyComponent>()){
 		if(!entity.hasComponent<InvulnerabilityComponent>()){
-			LivesComponent& lC = entity.getComponent<LivesComponent>();
-			lC.decrementCounter(1);
-
-			if(lC.getLivesCounter() == 0){
-				screen->setStatus(QUIT);
-				MainMenu* s = new MainMenu();
-				s->setManager(screen->getManager());
-				screen->getManager()->setCurrentScreen(s);
-			}else{
-				float invulnTime = screen->getEntityFactory()->
-						getRawEntityData("player")["invuln"].GetFloat();
-
-				SpriteComponent& s = entity.getComponent<SpriteComponent>();
-				entity.addComponent<InvulnerabilityComponent>(invulnTime);
-
-				entity.addComponent<ShaderComponent>("bin/data/flash_shader",
-						s.getTexture()).getShader().setUniform("u_time", 0.0f);;
-
-				entity.activate();
-			}
+			damagePlayer(entity);
 		}
 	}
 }
@@ -83,6 +91,10 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 				}else{
 					Tile* t = map->getTileLayer().getTile(tileX, tileY - 1).get();
 
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setRoofCollision(body->getPosition().x,
 							t->getBody().getPosition().y +
 							t->getBody().getGlobalBounds().height - 2,
@@ -96,6 +108,11 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY - 1)){
 					destroyTile(tileX - 1, tileY - 1, jet);
 				}else{
+					Tile* t = map->getTileLayer().getTile(tileX - 1, tileY - 1).get();
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
 							body, j, s);
 				}
@@ -107,6 +124,11 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 				if(jet.fireTurbo && jet.isFired&& !boundaryCheck(tileX + 1, tileY - 1)){
 					destroyTile(tileX + 1, tileY - 1, jet);
 				}else{
+					Tile* t = map->getTileLayer().getTile(tileX + 1, tileY - 1).get();
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
 							body, j, s);
 				}
@@ -129,6 +151,12 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX, tileY + 1)){
 					destroyTile(tileX, tileY + 1, jet);
 				}else{
+
+					Tile* t = map->getTileLayer().getTile(tileX, tileY + 1).get();
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
 							body, j, s);
@@ -140,6 +168,12 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY + 1)){
 					destroyTile(tileX - 1, tileY + 1, jet);
 				}else{
+
+					Tile* t = map->getTileLayer().getTile(tileX - 1, tileY + 1).get();
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
 							body, j, s);
@@ -151,6 +185,12 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX + 1, tileY + 1)){
 					destroyTile(tileX + 1, tileY + 1, jet);
 				}else{
+
+					Tile* t = map->getTileLayer().getTile(tileX + 1, tileY + 1).get();
+					if(t->getType() == Tile::Type::LAVA){
+						damagePlayer(entity);
+					}
+
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
 							body, j, s);
@@ -178,6 +218,9 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 			}
 
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY).get();
+			if(t->getType() == Tile::Type::LAVA){
+				damagePlayer(entity);
+			}
 
 			body->setPosition(
 					t->getBody().getPosition().x + t->getBody().getGlobalBounds().width - 2,
@@ -196,6 +239,9 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 			}
 
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY).get();
+			if(t->getType() == Tile::Type::LAVA){
+				damagePlayer(entity);
+			}
 
 			body->setPosition(t->getBody().getPosition().x - body->getGlobalBounds().width - 2,
 					body->getPosition().y);

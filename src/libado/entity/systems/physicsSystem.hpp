@@ -24,7 +24,9 @@
 static float const GRAVITY = 9.00f;
 
 struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementComponent>>{
-	PhysicsSystem(TileMap* m) : map(m){}
+	PhysicsSystem(TileMap* m) : map(m){
+		Logging::FileLogger::getInstance()->logString("MoveType,SpeedX,SpeedY" , "moveSpeed.csv");
+	}
 
     /// Updates the MovementSystem
     /// \param deltaTime The change in time
@@ -53,10 +55,24 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 					// remove gravity effects
 					s.currentVel.y = 0;
 
+					std::string str;
+					if(jet.fireTurbo && jet.initTurbo){
+						str =	"TURBO-JET," + std::to_string(jet.vel.x) + "," +
+								std::to_string(jet.vel.y);
+					}else{
+						str =	"NORM-JET," + std::to_string(jet.vel.x) + "," +
+								std::to_string(jet.vel.y);
+					}
+					Logging::FileLogger::getInstance()->logString(str , "moveSpeed.csv");
+
 					body->move(jet.vel.x * jet.dir.x, jet.vel.y * jet.dir.y);
 				}else{
 					// move player
 					updatePlayer(entity, delta);
+
+					std::string str =	"WALK," + std::to_string(s.currentVel.x) + "," +
+							std::to_string(s.currentVel.y);
+					Logging::FileLogger::getInstance()->logString(str , "moveSpeed.csv");
 
 					body->move(s.currentVel.x, s.currentVel.y);
 				}
@@ -94,9 +110,11 @@ private:
 
     	// horizontal movement
 		s.setXVec(s.currentAcc.x * delta.asSeconds());
-		s.currentVel.x *= 0.962f;	// friction
+
 		if(j.inAir){
 			s.currentVel.x *= 0.982f;	// additional air friction - more natural arc
+		}else if(s.currentAcc.x == 0){
+			s.currentVel.x *= 0.958f;	// friction
 		}
 
 		//	stop player moving if speed below min threshold(prevents infinite sliding)
