@@ -86,7 +86,7 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 
 			// tile top
 			if(b.collisionGrid[DirectionEnum::N]){
-				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX, tileY - 1)){
+				if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX, tileY - 1)){
 					destroyTile(tileX, tileY - 1, jet);
 				}else{
 					Tile* t = map->getTileLayer().getTile(tileX, tileY - 1).get();
@@ -98,14 +98,16 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 					setRoofCollision(body->getPosition().x,
 							t->getBody().getPosition().y +
 							t->getBody().getGlobalBounds().height - 2,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 			// tile top-LEFT
 			if(b.collisionGrid[DirectionEnum::NW] &&
 					!b.collisionGrid[DirectionEnum::W] &&
 					(s.currentVel.y < 0 || jet.isFired)){
-				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY - 1)){
+				if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX - 1, tileY - 1)){
 					destroyTile(tileX - 1, tileY - 1, jet);
 				}else{
 					Tile* t = map->getTileLayer().getTile(tileX - 1, tileY - 1).get();
@@ -114,14 +116,16 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 					}
 
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 			// tile top-RIGHT
 			if(b.collisionGrid[DirectionEnum::NE] &&
 					!b.collisionGrid[DirectionEnum::E] &&
 					(s.currentVel.y < 0 || jet.isFired)){
-				if(jet.fireTurbo && jet.isFired&& !boundaryCheck(tileX + 1, tileY - 1)){
+				if(jet.fireTurbo && jet.isFired&& boundaryCheck(tileX + 1, tileY - 1)){
 					destroyTile(tileX + 1, tileY - 1, jet);
 				}else{
 					Tile* t = map->getTileLayer().getTile(tileX + 1, tileY - 1).get();
@@ -130,11 +134,17 @@ void PlayerCollision::roofCollision(anax::Entity entity, int tileX, int tileY){
 					}
 
 					setRoofCollision(p.screenPosition.x, p.screenPosition.y,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 		}
 	}
+}
+void PlayerCollision::centerCollision(anax::Entity entity, int tileX, int tileY){
+
+
 }
 void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 	JumpComponent& j = entity.getComponent<JumpComponent>();
@@ -148,7 +158,7 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 			sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 			// tile down
 			if(b.collisionGrid[DirectionEnum::Direction::S]){
-				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX, tileY + 1)){
+				if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX, tileY + 1)){
 					destroyTile(tileX, tileY + 1, jet);
 				}else{
 
@@ -159,13 +169,15 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 			// tile down-left
 			if(b.collisionGrid[DirectionEnum::Direction::SW] &&
 					!b.collisionGrid[DirectionEnum::Direction::W]){
-				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY + 1)){
+				if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX - 1, tileY + 1)){
 					destroyTile(tileX - 1, tileY + 1, jet);
 				}else{
 
@@ -176,13 +188,15 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 			// tile down-right
 			if(b.collisionGrid[DirectionEnum::Direction::SE] &&
 					!b.collisionGrid[DirectionEnum::Direction::E]){
-				if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX + 1, tileY + 1)){
+				if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX + 1, tileY + 1)){
 					destroyTile(tileX + 1, tileY + 1, jet);
 				}else{
 
@@ -193,7 +207,9 @@ void PlayerCollision::floorCollision(anax::Entity entity, int tileX, int tileY){
 
 					setFloorCollision(body->getPosition().x,
 							((tileY + 1) * TILESIZE) - body->getGlobalBounds().height,
-							body, j, s);
+							body, j);
+					s.currentVel.y = 0;
+					jet.vel.y = 0;
 				}
 			}
 		}
@@ -207,9 +223,9 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 	sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 
 	// if collide w/ west wall and moving horizontally(not on rope) or swinging on rope
-	if(b.collisionGrid[DirectionEnum::Direction::W] && (s.currentVel.x < 0 ||
+	if(b.collisionGrid[DirectionEnum::Direction::W] && (s.currentVel.x != 0 ||
 			jet.isFired)){
-		if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX - 1, tileY)){
+		if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX - 1, tileY)){
 			destroyTile(tileX - 1, tileY, jet);
 		}else{
 			if(!jet.isFired){
@@ -226,11 +242,12 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 					t->getBody().getPosition().x + t->getBody().getGlobalBounds().width - 2,
 					body->getPosition().y);
 			s.currentVel.x = 0;
+			jet.vel.x = 0;
 		}
 	// if collide w/ east wall and moving horizontally(not on rope) or swinging on rope
-	}else if(b.collisionGrid[DirectionEnum::Direction::E] && (s.currentVel.x > 0 ||
+	}else if(b.collisionGrid[DirectionEnum::Direction::E] && (s.currentVel.x != 0 ||
 			jet.isFired)){
-		if(jet.fireTurbo && jet.isFired && !boundaryCheck(tileX + 1, tileY)){
+		if(jet.fireTurbo && jet.isFired && boundaryCheck(tileX + 1, tileY)){
 			destroyTile(tileX + 1, tileY, jet);
 		}else{
 			if(!jet.isFired){
@@ -246,6 +263,7 @@ void PlayerCollision::wallCollision(anax::Entity entity, int tileX, int tileY){
 			body->setPosition(t->getBody().getPosition().x - body->getGlobalBounds().width - 2,
 					body->getPosition().y);
 			s.currentVel.x = 0;
+			jet.vel.x = 0;
 		}
 	}
 }

@@ -95,8 +95,6 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 
 			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
     	}
-
-//    	printf("CollisionSystem > debugTime: %f\n", debug.restart().asSeconds());
     }
 
 private:
@@ -141,14 +139,15 @@ private:
     		std::function<void(DirectionEnum::Direction dir, BodyComponent& b)> func){
 		sf::RectangleShape* body = (sf::RectangleShape*)b.getShape("main");
 		// tile down
-		if(tileY + 1 < map->getHeight() && map->getCost(tileX, tileY + 1) != Tile::Type::AIR){
+		if(boundaryCheck(tileX, tileY - 1) &&
+				map->getCost(tileX, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::S, b);
 			}
 		}
 		// tile down-left
-		if((tileY + 1 < map->getHeight() && tileX - 1 >= 0) &&
+		if(boundaryCheck(tileX - 1, tileY + 1) &&
 				map->getCost(tileX - 1, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
@@ -156,7 +155,7 @@ private:
 			}
 		}
 		// tile down-right
-		if((tileY + 1 < map->getHeight() && tileX + 1 < map->getWidth()) &&
+		if(boundaryCheck(tileX + 1, tileY + 1) &&
 				map->getCost(tileX + 1, tileY + 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY + 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
@@ -164,28 +163,31 @@ private:
 			}
 		}
 		// tile left
-		if(tileX - 1 >= 0 && map->getCost(tileX - 1, tileY) != Tile::Type::AIR){
+		if(boundaryCheck(tileX - 1, tileY) &&
+				map->getCost(tileX - 1, tileY) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::W, b);
 			}
 		}
 		// tile right
-		if(tileX + 1 >= 0 && map->getCost(tileX + 1, tileY) != Tile::Type::AIR){
+		if(boundaryCheck(tileX + 1, tileY) &&
+				map->getCost(tileX + 1, tileY) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::E, b);
 			}
 		}
 		// tile up
-		if(tileY - 1 >= 0 && map->getCost(tileX, tileY - 1) != Tile::Type::AIR){
+		if(boundaryCheck(tileX, tileY - 1) &&
+				map->getCost(tileX, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::N, b);
 			}
 		}
 		// tile up-left
-		if((tileY - 1 >= 0 && tileX - 1 >= 0) &&
+		if(boundaryCheck(tileX - 1, tileY - 1) &&
 				map->getCost(tileX - 1, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX - 1, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
@@ -193,13 +195,21 @@ private:
 			}
 		}
 		// tile up-right
-		if((tileY - 1 >= 0 && tileX + 1 < map->getWidth()) &&
+		if(boundaryCheck(tileX + 1, tileY - 1) &&
 				map->getCost(tileX + 1, tileY - 1) != Tile::Type::AIR){
 			Tile* t = map->getTileLayer().getTile(tileX + 1, tileY - 1).get();
 			if(t->getBody().getGlobalBounds().intersects(body->getGlobalBounds())){
 				func(DirectionEnum::Direction::NE, b);
 			}
 		}
+	}
+
+	bool boundaryCheck(int tileX, int tileY){
+		if(tileX >= 0 && tileY >= 0 && tileX < map->getWidth() - 1 &&
+				tileY < map->getHeight() - 1){
+			return true;
+		}
+		return false;
 	}
 };
 

@@ -43,6 +43,8 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 
 	void thrustEntity(JetPackComponent& j, anax::Entity e, sf::Time& delta){
 		if(j.getCharge() > 0.0){
+
+			checkVelocity(j, e);
 			// drain charge; consumption = 1/2 fly speed / sec
 			j.addCharge((j.getFlySpeed() * -j.getNormFuel()) * delta.asSeconds());
 
@@ -66,7 +68,10 @@ struct JetPackSystem : anax::System<anax::Requires<JetPackComponent>>{
 		//	consume turbo charge + init turbo
 		if(!j.initTurbo){
 			if(j.getCharge() >= 1.0 && j.getTurboCharges() > 0){
-//				j.setTurboCharges(j.getTurboCharges() - 1);
+				checkVelocity(j, e);
+				if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
+					j.setTurboCharges(j.getTurboCharges() - 1);
+				}
 				j.initTurbo = true;
 				j.isFired = true;
 			}
@@ -109,6 +114,7 @@ private:
 
 		PositionComponent& p = e.getComponent<PositionComponent>();
 
+		// get normalized direction player to mouse
 		float magnitude = sf::LineShape::calcLineMag(p.screenPosition, worldVec);
 		float lenX = (worldVec.x - p.screenPosition.x);
 		float lenY = (worldVec.y - p.screenPosition.y);
@@ -120,6 +126,17 @@ private:
 			s.flipSpriteRight();
 		}else if(j.dir.x < 0 && s.isSpriteFlipped()){
 			s.flipSpriteLeft();
+		}
+	}
+
+	void checkVelocity(JetPackComponent& j, anax::Entity e){
+		MovementComponent& m = e.getComponent<MovementComponent>();
+
+		if((j.vel.x == 0 && j.vel.y == 0) && (m.currentVel.x != 0 || m.currentVel.y != 0)){
+			j.vel.x = m.currentVel.x;
+			if(m.currentVel.y < 0){
+				j.vel.y = std::abs(m.currentVel.y);
+			}
 		}
 	}
 };

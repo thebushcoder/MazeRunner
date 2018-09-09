@@ -24,6 +24,7 @@ public:
 	void preCheck(anax::Entity entity);
 	void postCheck(anax::Entity entity);
 	void roofCollision(anax::Entity entity, int tileX, int tileY);
+	void centerCollision(anax::Entity entity, int tileX, int tileY);
 	void floorCollision(anax::Entity entity, int tileX, int tileY);
 	void wallCollision(anax::Entity entity, int tileX, int tileY);
 	void entityCollision(anax::Entity entity, anax::Entity collider, int tileX, int tileY);
@@ -41,17 +42,14 @@ private:
 						(tileY * TILESIZE) + TILESIZE / 2), TILESIZE / 2);
 	}
 
-	void setRoofCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j,
-			MovementComponent& s){
+	void setRoofCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j){
 		body->setPosition(bodyX, bodyY);
 
 		if(j.jumping){
 			j.toggleJump(false);
 		}
-		s.currentVel.y = 0;
 	}
-	void setFloorCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j,
-			MovementComponent& s){
+	void setFloorCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j){
 		body->setPosition(bodyX, bodyY);
 		if(j.inAir){
 			j.setInAir(false);
@@ -59,7 +57,6 @@ private:
 		if(j.jumping){
 			j.toggleJump(false);
 		}
-		s.currentVel.y = 0;
 	}
 	void stickToWall(JumpComponent& j, MovementComponent& s, sf::Keyboard::Key k,
 			JumpComponent::WallStickType t){
@@ -80,8 +77,7 @@ private:
 		}
 	}
 	bool boundaryCheck(int tileX, int tileY){
-		if(tileX <= 0 || tileY <= 0 || tileX >= map->getWidth() || tileY >= map->getHeight()){
-			printf("GOT HERE\n");
+		if(tileX > 0 && tileY > 0 && tileX < map->getWidth() - 1 && tileY < map->getHeight() - 1){
 			return true;
 		}
 		return false;

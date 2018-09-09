@@ -47,7 +47,7 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 
 			// MOVE LEFT
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-				s.currentAcc.x = -s.getMaxAcc();
+				s.currentAcc.x = -1;
 				if(sprite.isSpriteFlipped()){
 					sprite.flipSpriteLeft();
 				}
@@ -57,7 +57,7 @@ struct PlayerController : anax::System<anax::Requires<PlayerComponent>>{
 			}
 			// MOVE RIGHT
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-				s.currentAcc.x = s.getMaxAcc();
+				s.currentAcc.x = 1;
 				if(!sprite.isSpriteFlipped()){
 					sprite.flipSpriteRight();
 				}

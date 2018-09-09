@@ -18,6 +18,7 @@ public:
 	virtual void preCheck(anax::Entity entity){}
 	virtual void postCheck(anax::Entity entity){}
 	virtual void roofCollision(anax::Entity entity, int tileX, int tileY){}
+	virtual void centerCollision(anax::Entity entity, int tileX, int tileY){}
 	virtual void floorCollision(anax::Entity entity, int tileX, int tileY){}
 	virtual void wallCollision(anax::Entity entity, int tileX, int tileY){}
 	virtual void entityCollision(anax::Entity entity, anax::Entity collider, int tileX, int tileY){}

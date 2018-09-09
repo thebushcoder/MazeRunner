@@ -154,8 +154,8 @@ void GameScreen::update(sf::Time& delta){
 
 	controller->update(delta);
 	physicsSys->update(delta);
-	collisionSys->update(delta);
 	jetpackSys->update(delta);
+	collisionSys->update(delta);
 	invulnerabilitySys->update(delta);
 	particleSys->update(delta);
 	animSys->update(delta);
