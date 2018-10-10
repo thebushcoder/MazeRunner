@@ -8,6 +8,9 @@
 #ifndef LIBADO_ENTITY_COMPONENTS_MOVEMENTCOMPONENT_HPP_
 #define LIBADO_ENTITY_COMPONENTS_MOVEMENTCOMPONENT_HPP_
 
+#define LEFT_NORM -1;
+#define RIGHT_NORM 1;
+
 struct MovementComponent : anax::Component{
 	sf::Vector2f currentVel;
 	sf::Vector2f currentAcc;
@@ -20,12 +23,12 @@ struct MovementComponent : anax::Component{
 	float getMinAcc(){
 		return minAcc;
 	}
-	void setXVec(float s){
+	void setXVel(float s){
 		if(std::abs(currentVel.x + s) < maxAcc){
 			currentVel.x += s;
 		}
 	}
-	void setYVec(float s){
+	void setYVel(float s){
 		if(std::abs(currentVel.y + s) < maxAcc){
 			currentVel.y += s;
 		}

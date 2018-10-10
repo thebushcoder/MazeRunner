@@ -72,7 +72,7 @@ void EntityLayer::render(sf::RenderWindow* window){
 
 			sf::RectangleShape rect(sf::Vector2f(TILESIZE, TILESIZE));
 			rect.setPosition(x * TILESIZE, y * TILESIZE);
-			rect.setFillColor(sf::Color::Cyan);
+			rect.setFillColor(sf::Color::Magenta);
 			window->draw(rect);
 		}
 	}

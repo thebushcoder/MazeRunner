@@ -14,7 +14,8 @@ struct JumpComponent : anax::Component{
 	enum WallStickType{
 		NONE,
 		LEFT,
-		RIGHT
+		RIGHT,
+		JUMPING
 	};
 	bool inAir = true, jumping = false, jPressed = false, doubleJ = false;
 	WallStickType wallStick = NONE;

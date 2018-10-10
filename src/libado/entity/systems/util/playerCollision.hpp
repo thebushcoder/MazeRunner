@@ -49,15 +49,10 @@ private:
 			j.toggleJump(false);
 		}
 	}
-	void setFloorCollision(float bodyX, float bodyY, sf::RectangleShape* body, JumpComponent& j){
-		body->setPosition(bodyX, bodyY);
-		if(j.inAir){
-			j.setInAir(false);
-		}
-		if(j.jumping){
-			j.toggleJump(false);
-		}
-	}
+
+	void applyCollision(int tileX, int tileY, float bodyX, float bodyY,
+			sf::RectangleShape* body, anax::Entity entity);
+
 	void stickToWall(JumpComponent& j, MovementComponent& s, sf::Keyboard::Key k,
 			JumpComponent::WallStickType t){
 		if(j.inAir && sf::Keyboard::isKeyPressed(k)){

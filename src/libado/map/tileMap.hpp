@@ -53,6 +53,26 @@ public:
 	std::string getName(){
 		return mapName;
 	}
+	sf::Vector2i getTilePosition(sf::Vector2f position, float w, float h){
+		sf::Vector2i vec;
+		vec.x = std::floor((position.x +
+				(w / 2)) / TILESIZE);
+		vec.y = std::floor((position.y +
+				(h / 2)) / TILESIZE);
+
+		if(vec.x <= 0){
+			vec.x = 1;
+		}else if(vec.x >= getWidth()){
+			vec.x = getWidth() - 1;
+		}
+		if(vec.y <= 0){
+			vec.y = 1;
+		}else if(vec.y >= getHeight()){
+			vec.y = getHeight() - 1;
+		}
+
+		return vec;
+	}
 protected:
 	std::shared_ptr<TileFactory> factory;
 	std::unique_ptr<TileLayer> tileLayer;

@@ -58,19 +58,21 @@ void MiniMap::update(sf::Time elapsedTime){
 		if(e.hasComponent<MapComponent>()){
 			MapComponent& mC = e.getComponent<MapComponent>();
 			PositionComponent& pos = e.getComponent<PositionComponent>();
+			BodyComponent& b = e.getComponent<BodyComponent>();
+			sf::Shape* body = b.getShape("main");
 
-			int tileX = std::floor(pos.screenPosition.x / TILESIZE);
-			int tileY = std::floor(pos.screenPosition.y / TILESIZE);
+			sf::Vector2i tilePos = map->getTilePosition(pos.screenPosition,
+					body->getGlobalBounds().width, body->getGlobalBounds().height);
 
-			tileX = (tileX == 0 ? tileX : tileX * 2);
-			tileY = (tileY == 0 ? tileY : tileY * 2);
+			tilePos.x = (tilePos.x == 0 ? tilePos.x : tilePos.x * 2);
+			tilePos.y = (tilePos.y == 0 ? tilePos.y : tilePos.y * 2);
 
 			int j = e.hasComponent<PlayerComponent>() ||
 					e.hasComponent<CheckpointComponent>() ? 5 : 3;
 
 			for(int x = 0; x < j; ++x){
 				for(int y = 0; y < j; ++y){
-					image.setPixel(tileX + x, tileY + y, mC.getColor());
+					image.setPixel(tilePos.x + x, tilePos.y + y, mC.getColor());
 				}
 			}
 		}

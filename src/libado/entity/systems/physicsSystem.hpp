@@ -37,12 +37,10 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 			BodyComponent& b = entity.getComponent<BodyComponent>();
 			sf::Shape* body = b.getShape("main");
 
-			int tileX = std::floor((p.screenPosition.x +
-					(body->getGlobalBounds().width / 2)) / TILESIZE);
-			int tileY = std::floor((p.screenPosition.y +
-					(body->getGlobalBounds().height / 2)) / TILESIZE);
+			sf::Vector2i tilePos = map->getTilePosition(p.screenPosition,
+					body->getGlobalBounds().width, body->getGlobalBounds().height);
 
-			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
+			map->getEntityLayer().removeEntity(tilePos.x, tilePos.y, entity.getId().index);
 
 			if(entity.hasComponent<PlayerComponent>()){
 				JetPackComponent& jet = entity.getComponent<JetPackComponent>();
@@ -63,19 +61,16 @@ struct PhysicsSystem : anax::System<anax::Requires<BodyComponent, MovementCompon
 
 			}else{
 				// move an entity
-				s.setXVec(s.getMaxAcc() * delta.asSeconds());
-				s.setYVec(s.getMaxAcc() * delta.asSeconds());
+				s.setXVel(s.getMaxAcc() * delta.asSeconds());
+				s.setYVel(s.getMaxAcc() * delta.asSeconds());
 
-				body->setPosition(p.screenPosition.x, p.screenPosition.y);
 				body->move(s.currentAcc.x * s.currentVel.x, s.currentAcc.y * s.currentVel.y);
 			}
 
-			tileX = std::floor((body->getPosition().x +
-					(body->getGlobalBounds().width / 2)) / TILESIZE);
-			tileY = std::floor((body->getPosition().y +
-					(body->getGlobalBounds().height / 2)) / TILESIZE);
+			tilePos = map->getTilePosition(body->getPosition(), body->getGlobalBounds().width,
+					body->getGlobalBounds().height);
 
-			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
+			map->getEntityLayer().setEntity(tilePos.x, tilePos.y, entity.getId().index);
 		}
 //    	printf("PhysicsSystem > debugTime: %f\n", debug.restart().asSeconds());
     }
@@ -89,18 +84,18 @@ private:
 		MovementComponent& s = entity.getComponent<MovementComponent>();
 		JumpComponent& j = entity.getComponent<JumpComponent>();
 
-		// jump and gravity
-		updateY(s, j, delta);
-
     	// horizontal movement
-		if(s.currentAcc.x != 0){
-			s.setXVec(s.getMaxAcc() * delta.asSeconds());
+		if(s.currentAcc.x != 0 && !j.jumping){
+			s.setXVel((s.getMaxAcc() * 3.0) * delta.asSeconds());
 		}
 
+		// jump and gravity
+		updateY(s, j, entity, delta);
+
 		if(j.inAir){
-			s.currentVel.x *= 0.998f;	// additional air friction - more natural arc
+			s.currentVel.x *= 0.9989f;	// additional air friction - more natural arc
 		}else if(s.currentAcc.x == 0){	// only apply friction when not receiving L/R input
-			s.currentVel.x *= 0.998f;	// friction
+			s.currentVel.x *= 0.992f;	// friction
 		}
 
 		//	stop player moving if speed below min threshold(prevents infinite sliding)
@@ -109,19 +104,20 @@ private:
 		}
     }
 
-    void updateY(MovementComponent& s, JumpComponent& j, sf::Time& delta){
+    void updateY(MovementComponent& s, JumpComponent& j, anax::Entity entity, sf::Time& delta){
     	//CALCULATE JUMP / Y POSITION
 		if(j.jumping && j.jPressed){
-			j.jumpTime += delta;
-
-			// keep jumping?
-			if(j.jumpTime.asSeconds() >= j.getMaxJumpTime()){
-				j.toggleJump(false);
+			if(j.wallStick != JumpComponent::NONE){
+				wallJump(s, j, entity, delta);
+			}else{
+				// keep jumping?
+				if(j.jumpTime.asSeconds() >= j.getMaxJumpTime()){
+					j.toggleJump(false);
+				}else{
+					j.jumpTime += delta;
+					s.setYVel(-(j.getJumpAcc() * 3.0) * delta.asSeconds());
+				}
 			}
-
-			wallJump(s, j, delta);
-
-			s.setYVec(-j.getJumpAcc() * delta.asSeconds());
 		}
 
 		// apply gravity
@@ -130,38 +126,37 @@ private:
 		}
     }
 
-    void wallJump(MovementComponent& s, JumpComponent& j, sf::Time& delta){
-    	if(j.wallStick != JumpComponent::NONE){
-			// player - left
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-				if(j.wallStick == JumpComponent::LEFT){
-					// short-x, upward jump
-					s.currentAcc.x = s.getMaxAcc() * 3;
-					j.smlWallJump += delta;
-					if(j.smlWallJump.asSeconds() >= j.getMaxSmlWallJ()){
-						j.wallStick = JumpComponent::NONE;
-					}
-					s.setYVec((-j.getJumpAcc() * 0.2) * delta.asSeconds());
-				}else{
-					// jump away from wall
-					j.wallStick = JumpComponent::NONE;
-				}
-			// player - right
-			}else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-				if(j.wallStick == JumpComponent::RIGHT){
-					// short-x, upward jump
-					s.currentAcc.x = -s.getMaxAcc() * 3;
-					j.smlWallJump += delta;
-					if(j.smlWallJump.asSeconds() >= j.getMaxSmlWallJ()){
-						j.wallStick = JumpComponent::NONE;
-					}
-					s.setYVec((-j.getJumpAcc() * 0.2) * delta.asSeconds());
-				}else{
-					// jump away from wall
-					j.wallStick = JumpComponent::NONE;
-				}
+    void wallJump(MovementComponent& s, JumpComponent& j, anax::Entity entity,
+    		sf::Time& delta){
+		BodyComponent& b = entity.getComponent<BodyComponent>();
+		sf::Shape* body = b.getShape("main");
+
+    	if(j.smlWallJump.asSeconds() >= j.getMaxSmlWallJ()){
+			j.wallStick = JumpComponent::NONE;
+			s.currentAcc.x = -s.currentAcc.x;
+    	}else{
+    		if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+    				j.wallStick == JumpComponent::LEFT){
+    			s.currentAcc.x = 1;
+    			body->move(4, 0);
+    		}else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) &&
+    				j.wallStick == JumpComponent::RIGHT){
+    			s.currentAcc.x = -1;
+    			body->move(-4, 0);
+    		}
+
+    		float diff = (j.getJumpAcc() * 1) * delta.asSeconds();
+    		if(diff < s.getMaxAcc() * 0.5){
+    			s.currentVel.x += diff;
+    		}
+
+			diff = (-j.getJumpAcc() * 2.5) * delta.asSeconds();
+			if(diff < j.getJumpAcc()){
+				s.currentVel.y += diff;
 			}
-		}
+
+			j.smlWallJump += delta;
+    	}
     }
 };
 

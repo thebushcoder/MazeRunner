@@ -73,7 +73,6 @@ void TileLayer::render(sf::RenderWindow* window){
 //					s->setUniform("tex", *map[x][y]->getBody().getTexture());
 				}
 				window->draw(map[x][y]->getBody(), s);
-//				printf("GOT HERE !!!!@@@@~!!! \n");
 			}else{
 				window->draw(map[x][y]->getBody());
 			}

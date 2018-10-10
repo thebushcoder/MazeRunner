@@ -39,16 +39,14 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 			BodyComponent& b = entity.getComponent<BodyComponent>();
 			sf::Shape* body = b.getShape("main");
 
-			int tileX = std::floor((body->getPosition().x +
-					(body->getGlobalBounds().width / 2)) / TILESIZE);
-			int tileY = std::floor((body->getPosition().y +
-					(body->getGlobalBounds().height / 2)) / TILESIZE);
+			sf::Vector2i tilePos = map->getTilePosition(body->getPosition(),
+					body->getGlobalBounds().width, body->getGlobalBounds().height);
 
-			map->getEntityLayer().removeEntity(tileX, tileY, entity.getId().index);
+			map->getEntityLayer().removeEntity(tilePos.x, tilePos.y, entity.getId().index);
 
 			// check for collisons at new position
 			b.resetGrid();
-			checkCollisions(b, tileX, tileY, [](DirectionEnum::Direction d,
+			checkCollisions(b, tilePos.x, tilePos.y, [](DirectionEnum::Direction d,
 					BodyComponent& b){
 				b.collisionGrid[d] = true;
 			});
@@ -60,40 +58,36 @@ struct CollisionSystem : anax::System<anax::Requires<BodyComponent, MovementComp
 			// roof
 			if(b.collisionGrid[DirectionEnum::NE] || b.collisionGrid[DirectionEnum::N] ||
 					b.collisionGrid[DirectionEnum::NW]){
-				modules[b.getCollisionMod()]->roofCollision(entity, tileX, tileY);
+				modules[b.getCollisionMod()]->roofCollision(entity, tilePos.x, tilePos.y);
 			}
 
 			// floor
 			if(b.collisionGrid[DirectionEnum::SE] || b.collisionGrid[DirectionEnum::S] ||
 					b.collisionGrid[DirectionEnum::SW]){
-				modules[b.getCollisionMod()]->floorCollision(entity, tileX, tileY);
+				modules[b.getCollisionMod()]->floorCollision(entity, tilePos.x, tilePos.y);
 			}
 
 			// walls
-			modules[b.getCollisionMod()]->wallCollision(entity, tileX, tileY);
+			modules[b.getCollisionMod()]->wallCollision(entity, tilePos.x, tilePos.y);
 
 			if(modules[b.getCollisionMod()]->hasPostCheck()){
 				modules[b.getCollisionMod()]->postCheck(entity);
 			}
 
-			tileX = std::floor((body->getPosition().x +
-					(body->getGlobalBounds().width / 2)) / TILESIZE);
-			tileY = std::floor((body->getPosition().y +
-					(body->getGlobalBounds().height / 2)) / TILESIZE);
+			tilePos = map->getTilePosition(body->getPosition(),
+					body->getGlobalBounds().width, body->getGlobalBounds().height);
 
 			// entity col check
-			checkEntityCollisions(tileX, tileY, entity, body);
+			checkEntityCollisions(tilePos.x, tilePos.y, entity, body);
 
-			tileX = std::floor((body->getPosition().x +
-					(body->getGlobalBounds().width / 2)) / TILESIZE);
-			tileY = std::floor((body->getPosition().y +
-					(body->getGlobalBounds().height / 2)) / TILESIZE);
+			tilePos = map->getTilePosition(body->getPosition(),
+					body->getGlobalBounds().width, body->getGlobalBounds().height);
 
 			//POSITION ENTITY
 			p.screenPosition.x = body->getPosition().x;
 			p.screenPosition.y = body->getPosition().y;
 
-			map->getEntityLayer().setEntity(tileX, tileY, entity.getId().index);
+			map->getEntityLayer().setEntity(tilePos.x, tilePos.y, entity.getId().index);
     	}
     }
 
@@ -105,15 +99,34 @@ private:
     sf::Clock debug;
 
     void checkEntityCollisions(int tileX, int tileY, anax::Entity e,  sf::Shape* body){
-    	checkNeighbour(tileX, tileY + 1, e, body);
-    	checkNeighbour(tileX + 1, tileY, e, body);
-    	checkNeighbour(tileX - 1, tileY, e, body);
-    	checkNeighbour(tileX, tileY - 1, e, body);
-    	checkNeighbour(tileX + 1, tileY + 1, e, body);
-    	checkNeighbour(tileX - 1, tileY - 1, e, body);
-    	checkNeighbour(tileX - 1, tileY + 1, e, body);
-    	checkNeighbour(tileX + 1, tileY - 1, e, body);
-    	checkNeighbour(tileX, tileY, e, body);
+    	BodyComponent& b = e.getComponent<BodyComponent>();
+    	if(boundaryCheck(tileX, tileY + 1) && b.collisionGrid[DirectionEnum::S]){
+        	checkNeighbour(tileX, tileY + 1, e, body);
+    	}
+    	if(boundaryCheck(tileX + 1, tileY) && b.collisionGrid[DirectionEnum::E]){
+    		checkNeighbour(tileX + 1, tileY, e, body);
+    	}
+    	if(boundaryCheck(tileX - 1, tileY) && b.collisionGrid[DirectionEnum::W]){
+        	checkNeighbour(tileX - 1, tileY, e, body);
+    	}
+    	if(boundaryCheck(tileX, tileY - 1) && b.collisionGrid[DirectionEnum::N]){
+        	checkNeighbour(tileX, tileY - 1, e, body);
+    	}
+    	if(boundaryCheck(tileX + 1, tileY + 1) && b.collisionGrid[DirectionEnum::SE]){
+    		checkNeighbour(tileX + 1, tileY + 1, e, body);
+    	}
+    	if(boundaryCheck(tileX - 1, tileY - 1) && b.collisionGrid[DirectionEnum::NW]){
+    		checkNeighbour(tileX - 1, tileY - 1, e, body);
+    	}
+    	if(boundaryCheck(tileX - 1, tileY + 1) && b.collisionGrid[DirectionEnum::SW]){
+    		checkNeighbour(tileX - 1, tileY + 1, e, body);
+    	}
+    	if(boundaryCheck(tileX + 1, tileY - 1) && b.collisionGrid[DirectionEnum::NE]){
+    		checkNeighbour(tileX + 1, tileY - 1, e, body);
+    	}
+    	if(boundaryCheck(tileX, tileY)){
+    		checkNeighbour(tileX, tileY, e, body);
+    	}
     }
 
     void checkNeighbour(int tileX, int tileY, anax::Entity e, sf::Shape* body){
@@ -205,8 +218,8 @@ private:
 	}
 
 	bool boundaryCheck(int tileX, int tileY){
-		if(tileX >= 0 && tileY >= 0 && tileX < map->getWidth() - 1 &&
-				tileY < map->getHeight() - 1){
+		if(tileX >= 0 && tileY >= 0 && tileX <= map->getWidth() - 1 &&
+				tileY <= map->getHeight() - 1){
 			return true;
 		}
 		return false;
